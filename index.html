@@ -56,7 +56,7 @@
     }
 
     .glass-card {
-      background: rgba(22, 27, 34, 0.88);
+      background: rgba(22, 27, 34, 0.9);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -69,8 +69,6 @@
       color: #ffffff;
       transition: all 0.2s ease-in-out;
       pointer-events: auto !important;
-      position: relative;
-      z-index: 10;
     }
 
     .input-field:focus {
@@ -118,25 +116,48 @@
 
     .page-tab.active {
       display: block;
-      animation: fadeIn 0.3s ease-in-out;
+      animation: fadeIn 0.25s ease-in-out;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes popIn {
-      0% { opacity: 0; transform: scale(0.88); }
+      0% { opacity: 0; transform: scale(0.9); }
       100% { opacity: 1; transform: scale(1); }
     }
 
     .animate-pop {
-      animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* EXECUTIVE PRINT/PDF STYLING */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #pdfReportContainer, #pdfReportContainer * {
+        visibility: visible;
+      }
+      #pdfReportContainer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        border: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
     }
   </style>
 </head>
-<body class="min-h-screen pb-12 antialiased selection:bg-amber-glow selection:text-black">
+<body class="min-h-screen pb-12 antialiased">
 
   <!-- Header Banner -->
   <header class="sticky top-0 z-40 bg-granite-950/90 backdrop-blur-md border-b border-granite-700/60 px-4 py-3">
@@ -160,26 +181,26 @@
         </div>
       </div>
 
-      <button onclick="openImageModal()" class="p-2.5 rounded-xl bg-granite-800/90 border border-granite-600/50 text-gray-300 hover:text-white hover:border-amber-glow/50 transition">
+      <button type="button" onclick="openImageModal()" class="p-2.5 rounded-xl bg-granite-800/90 border border-granite-600/50 text-gray-300 hover:text-white hover:border-amber-glow/50 transition">
         <i data-lucide="settings-2" class="w-5 h-5"></i>
       </button>
     </div>
   </header>
 
-  <!-- Main Navigation Tabs -->
+  <!-- Navigation Tabs -->
   <div class="max-w-xl mx-auto px-4 mt-4">
     <nav class="grid grid-cols-3 gap-1 bg-granite-800/80 p-1.5 rounded-2xl border border-granite-700/50">
-      <button onclick="switchTab('tab-entry')" id="btn-tab-entry" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-black bg-amber-glow shadow">
+      <button type="button" onclick="switchTab('tab-entry')" id="btn-tab-entry" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-black bg-amber-glow shadow">
         <i data-lucide="fuel" class="w-4 h-4"></i>
         <span>Fueling Entry</span>
       </button>
 
-      <button onclick="switchTab('tab-logs')" id="btn-tab-logs" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-gray-400 hover:text-white">
+      <button type="button" onclick="switchTab('tab-logs')" id="btn-tab-logs" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-gray-400 hover:text-white">
         <i data-lucide="list-ordered" class="w-4 h-4"></i>
         <span>Fuel Logs</span>
       </button>
 
-      <button onclick="switchTab('tab-report')" id="btn-tab-report" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-gray-400 hover:text-white">
+      <button type="button" onclick="switchTab('tab-report')" id="btn-tab-report" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-gray-400 hover:text-white">
         <i data-lucide="file-text" class="w-4 h-4"></i>
         <span>Summary Report</span>
       </button>
@@ -188,7 +209,13 @@
 
   <main class="max-w-xl mx-auto px-4 mt-4 space-y-5">
 
-    <!-- KPI Dashboard Overview -->
+    <!-- Toast Notification Box -->
+    <div id="toastBox" class="hidden p-3 rounded-xl bg-red-950/90 border border-red-500 text-red-200 text-xs font-bold flex items-center justify-between">
+      <span id="toastMsg">Please fill in required fields.</span>
+      <button type="button" onclick="hideToast()"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+
+    <!-- Dashboard KPI Cards -->
     <section class="grid grid-cols-2 gap-3">
       <div class="glass-card rounded-2xl p-3.5">
         <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Fuel Value</div>
@@ -230,12 +257,12 @@
     <!-- TAB 1: FUELING ENTRY FORM -->
     <section id="tab-entry" class="page-tab active space-y-4">
 
-      <!-- Showcase Vehicle Banner -->
+      <!-- Web Showcase Photo Banner -->
       <div class="glass-card rounded-2xl p-3.5 flex flex-col items-center justify-center relative overflow-hidden border border-granite-700/80">
         <div class="w-full h-52 rounded-xl overflow-hidden bg-black relative border border-granite-700/60 flex items-center justify-center">
           <img id="mainVehiclePhoto" class="w-full h-full object-cover" src="" alt="Perodua Bezza AV Granite Grey">
           
-          <button onclick="openImageModal()" class="absolute top-2 right-2 px-3 py-1.5 rounded-lg bg-black/75 text-amber-glow font-bold text-xs flex items-center gap-1.5 border border-amber-glow/40 shadow">
+          <button type="button" onclick="openImageModal()" class="absolute top-2 right-2 px-3 py-1.5 rounded-lg bg-black/80 text-amber-glow font-bold text-xs flex items-center gap-1.5 border border-amber-glow/40 shadow">
             <i data-lucide="camera" class="w-3.5 h-3.5"></i>
             <span>Change Photo</span>
           </button>
@@ -253,7 +280,7 @@
             </h2>
             <p class="text-xs text-gray-400 font-medium">Granite Grey Metallic • Main Web Photo</p>
           </div>
-          <button onclick="openImageModal()" class="text-xs text-amber-glow font-semibold hover:underline flex items-center gap-1">
+          <button type="button" onclick="openImageModal()" class="text-xs text-amber-glow font-semibold hover:underline flex items-center gap-1">
             <i data-lucide="image" class="w-3.5 h-3.5"></i>
             <span>Manage Photos</span>
           </button>
@@ -261,7 +288,7 @@
       </div>
 
       <!-- Fueling Form Container -->
-      <form id="fuelForm" onsubmit="handleSaveFuelEntry(event)" class="glass-card rounded-2xl p-4 space-y-4">
+      <div class="glass-card rounded-2xl p-4 space-y-4">
         <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
           <h2 class="font-bold text-base text-white flex items-center gap-2">
             <i data-lucide="fuel" class="w-5 h-5 text-amber-glow"></i>
@@ -275,7 +302,7 @@
             <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-glow"></i>
             Date (DD/MM/YYYY)
           </label>
-          <input type="text" id="inputDate" required placeholder="DD/MM/YYYY"
+          <input type="text" id="inputDate" placeholder="DD/MM/YYYY"
             class="input-field w-full px-3.5 py-2.5 rounded-xl text-sm font-mono">
         </div>
 
@@ -283,9 +310,9 @@
         <div>
           <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <i data-lucide="gauge" class="w-3.5 h-3.5 text-neon-cyan"></i>
-            Current Odometer (KM)
+            Current Odometer (KM) <span class="text-red-400">*</span>
           </label>
-          <input type="number" id="inputOdometer" required placeholder="e.g. 45200" step="1" min="0" inputmode="numeric"
+          <input type="number" id="inputOdometer" placeholder="e.g. 45200" step="any" inputmode="numeric"
             class="input-field w-full px-3.5 py-2.5 rounded-xl text-sm font-mono">
         </div>
 
@@ -293,14 +320,14 @@
         <div>
           <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-glow"></i>
-            Total Fuel Value (RM) <span class="text-amber-glow">(With Subsidy)</span> *
+            Total Fuel Value (RM) <span class="text-amber-glow">(With Subsidy Value)</span> *
           </label>
           <div class="relative">
             <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-sm">RM</span>
-            <input type="number" id="inputFuelValue" required placeholder="116.85" step="0.01" min="0.01" inputmode="decimal"
+            <input type="number" id="inputFuelValue" placeholder="116.85" step="any" inputmode="decimal"
               class="input-field w-full pl-11 pr-3.5 py-2.5 rounded-xl text-sm font-mono">
           </div>
-          <p class="text-[11px] text-gray-400 mt-1">Example: Total fuel pumped value (e.g. RM 116.85).</p>
+          <p class="text-[11px] text-gray-400 mt-1">Example: Total fuel value pumped into tank (e.g. RM 116.85).</p>
         </div>
 
         <!-- 4. ACTUAL PAID AMOUNT (RM) -->
@@ -311,7 +338,7 @@
           </label>
           <div class="relative">
             <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-sm">RM</span>
-            <input type="number" id="inputPaidAmount" required placeholder="50.00" step="0.01" min="0" inputmode="decimal"
+            <input type="number" id="inputPaidAmount" placeholder="50.00" step="any" inputmode="decimal"
               class="input-field w-full pl-11 pr-3.5 py-2.5 rounded-xl text-sm font-mono">
           </div>
           <p class="text-[11px] text-gray-400 mt-1">Example: Actual money paid out of pocket (e.g. RM 50.00).</p>
@@ -323,7 +350,7 @@
             <i data-lucide="navigation" class="w-3.5 h-3.5 text-neon-cyan"></i>
             Average Range Shown After Fuel (KM)
           </label>
-          <input type="number" id="inputRange" placeholder="e.g. 580" step="1" min="0" inputmode="numeric"
+          <input type="number" id="inputRange" placeholder="e.g. 580" step="any" inputmode="numeric"
             class="input-field w-full px-3.5 py-2.5 rounded-xl text-sm font-mono">
         </div>
 
@@ -351,13 +378,12 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-glow w-full py-3.5 rounded-xl text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg mt-2">
+        <button type="button" onclick="executeSaveFuelEntry()" class="btn-glow w-full py-3.5 rounded-xl text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg mt-2 cursor-pointer">
           <i data-lucide="save" class="w-4 h-4"></i>
           <span>Save Fueling Entry</span>
         </button>
-      </form>
+      </div>
     </section>
-
 
     <!-- TAB 2: FUEL LOGS HISTORY -->
     <section id="tab-logs" class="page-tab space-y-4">
@@ -396,8 +422,7 @@
       </div>
     </section>
 
-
-    <!-- TAB 3: SUMMARY REPORT (MR YUGA'S FUELING SUMMARY) -->
+    <!-- TAB 3: SUMMARY REPORT -->
     <section id="tab-report" class="page-tab space-y-4">
       <div class="glass-card rounded-2xl p-4 space-y-4">
         <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
@@ -406,78 +431,84 @@
               <i data-lucide="file-spreadsheet" class="w-5 h-5 text-amber-glow"></i>
               Mr Yuga's Fueling Summary
             </h2>
-            <p class="text-xs text-gray-400">Generate and download official fueling summary reports.</p>
+            <p class="text-xs text-gray-400">Export high-resolution executive summary documents.</p>
           </div>
         </div>
 
         <div class="flex gap-2">
-          <button onclick="downloadReportPDF()" class="flex-1 btn-glow py-2.5 rounded-xl text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow">
+          <button type="button" onclick="downloadReportPDF()" class="flex-1 btn-glow py-2.5 rounded-xl text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow cursor-pointer">
             <i data-lucide="download" class="w-4 h-4"></i>
             <span>Download PDF</span>
           </button>
+
+          <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl bg-granite-800 hover:bg-granite-700 text-amber-glow font-bold text-xs flex items-center justify-center border border-granite-700 cursor-pointer" title="Print Document">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+          </button>
           
-          <button onclick="downloadReportCSV()" class="px-4 py-2.5 rounded-xl bg-granite-800 hover:bg-granite-700 text-neon-cyan font-bold text-xs flex items-center justify-center border border-granite-700" title="Export CSV">
+          <button type="button" onclick="downloadReportCSV()" class="px-4 py-2.5 rounded-xl bg-granite-800 hover:bg-granite-700 text-neon-cyan font-bold text-xs flex items-center justify-center border border-granite-700 cursor-pointer" title="Export CSV">
             <i data-lucide="file-output" class="w-4 h-4"></i>
           </button>
         </div>
 
-        <!-- Printable Document Area -->
-        <div id="pdfReportContainer" class="bg-slate-950 p-4 rounded-xl border border-granite-700/80 text-white space-y-4">
-          <!-- Printable Header -->
-          <div class="flex items-start justify-between border-b border-gray-800 pb-3">
+        <!-- PRINTABLE DOCUMENT CONTAINER (EXECUTIVE WHITE REPORT THEME) -->
+        <div id="pdfReportContainer" class="bg-white text-slate-900 p-6 rounded-xl border border-slate-300 space-y-5 shadow-xl">
+          
+          <!-- Document Header -->
+          <div class="flex items-start justify-between border-b-2 border-slate-900 pb-4">
             <div>
-              <h1 class="text-lg font-extrabold text-amber-glow tracking-tight">Mr Yuga's Fueling Summary</h1>
-              <p class="text-xs text-gray-300 font-medium mt-0.5">Vehicle: <strong class="text-white">Perodua Bezza AV (Granite Grey)</strong></p>
-              <p class="text-xs text-gray-300 font-medium">Plate Number: <strong class="text-amber-glow font-mono">APK 8745</strong></p>
+              <h1 class="text-xl font-black text-slate-900 tracking-tight uppercase">Mr Yuga's Fueling Summary</h1>
+              <p class="text-xs text-slate-600 font-semibold mt-0.5">Vehicle: <strong class="text-slate-900">Perodua Bezza AV (Granite Grey)</strong></p>
+              <p class="text-xs text-slate-600 font-semibold">Plate Number: <strong class="text-amber-600 font-mono">APK 8745</strong></p>
             </div>
             <div class="text-right">
-              <span class="text-[10px] text-gray-400 uppercase tracking-widest block">Report Date</span>
-              <span id="reportGenDate" class="text-xs font-mono font-bold text-neon-cyan">--/--/----</span>
+              <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">Report Date</span>
+              <span id="reportGenDate" class="text-xs font-mono font-bold text-slate-900">--/--/----</span>
             </div>
           </div>
 
-          <!-- Car Photo Banner in Report -->
-          <div class="w-full h-36 rounded-lg overflow-hidden border border-gray-800 bg-black">
+          <!-- Printable Banner Photo -->
+          <div class="w-full h-44 rounded-lg overflow-hidden border border-slate-300 bg-slate-100">
             <img id="reportCarPhoto" class="w-full h-full object-cover" src="" alt="Perodua Bezza AV">
           </div>
 
-          <!-- Summary Key Figures -->
-          <div class="grid grid-cols-3 gap-2 text-center bg-slate-900 p-3 rounded-lg border border-slate-800">
+          <!-- Key Financial Metrics Box -->
+          <div class="grid grid-cols-3 gap-3 text-center bg-slate-100 p-3.5 rounded-lg border border-slate-300">
             <div>
-              <div class="text-[10px] text-gray-400 uppercase font-bold">Total Fuel Value</div>
-              <div id="repFuelValue" class="text-sm font-extrabold font-mono text-amber-glow mt-0.5">RM 0.00</div>
+              <div class="text-[10px] text-slate-500 uppercase font-bold">Total Fuel Value</div>
+              <div id="repFuelValue" class="text-base font-black font-mono text-amber-600 mt-0.5">RM 0.00</div>
             </div>
             <div>
-              <div class="text-[10px] text-gray-400 uppercase font-bold">Actual Paid</div>
-              <div id="repActualPaid" class="text-sm font-extrabold font-mono text-white mt-0.5">RM 0.00</div>
+              <div class="text-[10px] text-slate-500 uppercase font-bold">Actual Paid</div>
+              <div id="repActualPaid" class="text-base font-black font-mono text-slate-900 mt-0.5">RM 0.00</div>
             </div>
             <div>
-              <div class="text-[10px] text-gray-400 uppercase font-bold">Subsidy Saved</div>
-              <div id="repTotalSavings" class="text-sm font-extrabold font-mono text-neon-emerald mt-0.5">RM 0.00</div>
+              <div class="text-[10px] text-slate-500 uppercase font-bold">Subsidy Savings</div>
+              <div id="repTotalSavings" class="text-base font-black font-mono text-emerald-600 mt-0.5">RM 0.00</div>
             </div>
           </div>
 
-          <!-- Detailed Breakdown Table -->
+          <!-- Full Breakdown Table -->
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-[11px] border-collapse">
+            <table class="w-full text-left text-xs border-collapse">
               <thead>
-                <tr class="border-b border-gray-800 text-gray-400 font-mono">
-                  <th class="py-1.5 px-1">Date</th>
-                  <th class="py-1.5 px-1">Odometer</th>
-                  <th class="py-1.5 px-1">Fuel Value</th>
-                  <th class="py-1.5 px-1">Paid Spent</th>
-                  <th class="py-1.5 px-1">Saved</th>
-                  <th class="py-1.5 px-1">Bars</th>
+                <tr class="border-b-2 border-slate-900 text-slate-700 font-mono uppercase text-[11px]">
+                  <th class="py-2 px-1.5">Date</th>
+                  <th class="py-2 px-1.5">Odometer</th>
+                  <th class="py-2 px-1.5">Fuel Value</th>
+                  <th class="py-2 px-1.5">Actual Paid</th>
+                  <th class="py-2 px-1.5">Saved</th>
+                  <th class="py-2 px-1.5">Bars</th>
+                  <th class="py-2 px-1.5">Range</th>
                 </tr>
               </thead>
-              <tbody id="reportTableBody" class="divide-y divide-slate-900 font-mono">
+              <tbody id="reportTableBody" class="divide-y divide-slate-200 font-mono text-slate-900">
                 <!-- Data populated dynamically -->
               </tbody>
             </table>
           </div>
 
-          <div class="text-[10px] text-gray-500 text-center border-t border-gray-900 pt-2 font-mono">
-            Generated specifically for Mr Yuga • Perodua Bezza AV (APK 8745)
+          <div class="text-[10px] text-slate-500 text-center border-t border-slate-300 pt-3 font-mono">
+            Official Fueling Record • Generated for Mr Yuga • Perodua Bezza AV (APK 8745)
           </div>
         </div>
 
@@ -509,7 +540,7 @@
         <div class="flex justify-between"><span class="text-gray-400">Subsidy Saved:</span><span id="popSavings" class="text-neon-emerald font-bold"></span></div>
       </div>
 
-      <button onclick="closeThankYouModal()" class="btn-glow w-full py-3 rounded-xl text-black font-extrabold text-xs shadow-lg">
+      <button type="button" onclick="closeThankYouModal()" class="btn-glow w-full py-3 rounded-xl text-black font-extrabold text-xs shadow-lg cursor-pointer">
         Awesome, Drive Safe!
       </button>
     </div>
@@ -524,7 +555,7 @@
           <i data-lucide="image" class="w-4 h-4 text-amber-glow"></i>
           Manage Vehicle Photos
         </h3>
-        <button onclick="closeImageModal()" class="text-gray-400 hover:text-white">
+        <button type="button" onclick="closeImageModal()" class="text-gray-400 hover:text-white">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
@@ -560,10 +591,10 @@
       </div>
 
       <div class="flex gap-2 pt-1">
-        <button onclick="saveAllPhotos()" class="btn-glow flex-1 py-2.5 rounded-xl text-black font-extrabold text-xs">
+        <button type="button" onclick="saveAllPhotos()" class="btn-glow flex-1 py-2.5 rounded-xl text-black font-extrabold text-xs cursor-pointer">
           Save Photo Settings
         </button>
-        <button onclick="closeImageModal()" class="px-4 py-2.5 rounded-xl bg-granite-800 text-gray-300 font-bold text-xs">
+        <button type="button" onclick="closeImageModal()" class="px-4 py-2.5 rounded-xl bg-granite-800 text-gray-300 font-bold text-xs cursor-pointer">
           Cancel
         </button>
       </div>
@@ -573,16 +604,27 @@
 
   <!-- APPLICATION JAVASCRIPT -->
   <script>
-    // DEFAULT VECTOR SVG FALLBACK (PERODUA BEZZA GRANITE GREY APK 8745)
     const DEFAULT_BEZZA_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450' width='100%' height='100%'><rect width='800' height='450' fill='%2311161d'/><path d='M0 320 Q 400 280 800 320 L 800 450 L 0 450 Z' fill='%231c232d'/><g fill='%234a4e51'><path d='M 140 250 Q 220 160 380 150 L 580 160 Q 680 180 720 250 Q 740 280 710 310 L 130 310 Q 100 280 140 250 Z'/></g><rect x='310' y='290' width='180' height='35' rx='6' fill='%23050505' stroke='%23ffb703' stroke-width='2'/><text x='400' y='313' font-family='monospace' font-weight='bold' font-size='18' fill='%23ffb703' text-anchor='middle'>APK 8745</text></svg>";
 
-    // APP STATE STORAGE
-    let fuelEntries = JSON.parse(localStorage.getItem('mrYuga_fuelEntries') || '[]');
-    let selectedFuelBars = 0; // DEFAULT TO 0 BARS
-    let savedWebPhoto = localStorage.getItem('mrYuga_webPhoto') || DEFAULT_BEZZA_SVG;
-    let savedThankYouPhoto = localStorage.getItem('mrYuga_thankYouPhoto') || DEFAULT_BEZZA_SVG;
+    // FAIL-SAFE STORAGE WRAPPER
+    let memoryStorage = [];
+    let fuelEntries = [];
+    
+    try {
+      fuelEntries = JSON.parse(localStorage.getItem('mrYuga_fuelEntries') || '[]');
+    } catch(err) {
+      fuelEntries = memoryStorage;
+    }
 
-    // INITIALIZATION
+    let selectedFuelBars = 0;
+    let savedWebPhoto = DEFAULT_BEZZA_SVG;
+    let savedThankYouPhoto = DEFAULT_BEZZA_SVG;
+
+    try {
+      savedWebPhoto = localStorage.getItem('mrYuga_webPhoto') || DEFAULT_BEZZA_SVG;
+      savedThankYouPhoto = localStorage.getItem('mrYuga_thankYouPhoto') || DEFAULT_BEZZA_SVG;
+    } catch(e) {}
+
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       initCurrentDate();
@@ -593,7 +635,6 @@
       renderReport();
     });
 
-    // DATE FORMATTER DD/MM/YYYY
     function getTodayFormattedDDMMYYYY() {
       const today = new Date();
       const dd = String(today.getDate()).padStart(2, '0');
@@ -604,10 +645,21 @@
 
     function initCurrentDate() {
       const dateInput = document.getElementById('inputDate');
-      if (dateInput) dateInput.value = getTodayFormattedDDMMYYYY();
+      if (dateInput && !dateInput.value) {
+        dateInput.value = getTodayFormattedDDMMYYYY();
+      }
     }
 
-    // VEHICLE PHOTO MANAGEMENT
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      document.getElementById('toastMsg').innerText = msg;
+      box.classList.remove('hidden');
+    }
+
+    function hideToast() {
+      document.getElementById('toastBox').classList.add('hidden');
+    }
+
     function updateVehiclePhotos() {
       document.getElementById('headerCarAvatar').src = savedWebPhoto;
       document.getElementById('mainVehiclePhoto').src = savedWebPhoto;
@@ -641,11 +693,11 @@
 
       if (webUrl) {
         savedWebPhoto = convertGoogleDriveUrl(webUrl);
-        localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
+        try { localStorage.setItem('mrYuga_webPhoto', savedWebPhoto); } catch(e){}
       }
       if (thankYouUrl) {
         savedThankYouPhoto = convertGoogleDriveUrl(thankYouUrl);
-        localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto);
+        try { localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto); } catch(e){}
       }
 
       updateVehiclePhotos();
@@ -659,10 +711,10 @@
         reader.onload = function(e) {
           if (type === 'web') {
             savedWebPhoto = e.target.result;
-            localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
+            try { localStorage.setItem('mrYuga_webPhoto', savedWebPhoto); } catch(err){}
           } else {
             savedThankYouPhoto = e.target.result;
-            localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto);
+            try { localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto); } catch(err){}
           }
           updateVehiclePhotos();
         };
@@ -670,7 +722,6 @@
       }
     }
 
-    // 8-BAR DIGITAL FUEL GAUGE (STARTS AT 0)
     function renderFuelGaugeBars() {
       const container = document.getElementById('fuelGaugeBars');
       container.innerHTML = '';
@@ -703,7 +754,6 @@
       renderFuelGaugeBars();
     }
 
-    // TAB SWITCHING
     function switchTab(tabId) {
       document.querySelectorAll('.page-tab').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -719,14 +769,21 @@
       if (tabId === 'tab-report') renderReport();
     }
 
-    // SAVE FUELING ENTRY
-    function handleSaveFuelEntry(e) {
-      e.preventDefault();
-
+    function executeSaveFuelEntry() {
+      hideToast();
       const date = document.getElementById('inputDate').value.trim() || getTodayFormattedDDMMYYYY();
-      const odometer = parseFloat(document.getElementById('inputOdometer').value) || 0;
-      const fuelValue = parseFloat(document.getElementById('inputFuelValue').value) || 0;
-      const paidAmount = parseFloat(document.getElementById('inputPaidAmount').value) || 0;
+      const odometerRaw = document.getElementById('inputOdometer').value;
+      const fuelValueRaw = document.getElementById('inputFuelValue').value;
+      const paidAmountRaw = document.getElementById('inputPaidAmount').value;
+
+      if (!odometerRaw || !fuelValueRaw || !paidAmountRaw) {
+        showToast('Please enter Odometer, Total Fuel Value, and Actual Paid Amount.');
+        return;
+      }
+
+      const odometer = parseFloat(odometerRaw) || 0;
+      const fuelValue = parseFloat(fuelValueRaw) || 0;
+      const paidAmount = parseFloat(paidAmountRaw) || 0;
       const range = parseFloat(document.getElementById('inputRange').value) || 0;
       const subsidySaved = Math.max(0, fuelValue - paidAmount);
 
@@ -742,7 +799,12 @@
       };
 
       fuelEntries.unshift(newEntry);
-      localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries));
+      
+      try {
+        localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries));
+      } catch(err) {
+        memoryStorage = fuelEntries;
+      }
 
       renderLogsTable();
       updateDashboardStats();
@@ -754,7 +816,7 @@
       document.getElementById('popSavings').innerText = `RM ${subsidySaved.toFixed(2)}`;
       document.getElementById('thankYouModal').classList.remove('hidden');
 
-      // Reset form fields
+      // Clear Form inputs
       document.getElementById('inputOdometer').value = '';
       document.getElementById('inputFuelValue').value = '';
       document.getElementById('inputPaidAmount').value = '';
@@ -767,7 +829,6 @@
       document.getElementById('thankYouModal').classList.add('hidden');
     }
 
-    // DASHBOARD STATS
     function updateDashboardStats() {
       let totalValue = 0;
       let totalPaid = 0;
@@ -775,9 +836,9 @@
       let maxOdo = 0;
 
       fuelEntries.forEach(entry => {
-        totalValue += entry.fuelValue;
-        totalPaid += entry.paidAmount;
-        totalSaved += entry.subsidySaved;
+        totalValue += (entry.fuelValue || 0);
+        totalPaid += (entry.paidAmount || 0);
+        totalSaved += (entry.subsidySaved || 0);
         if (entry.odometer > maxOdo) maxOdo = entry.odometer;
       });
 
@@ -788,7 +849,6 @@
       document.getElementById('logCountBadge').innerText = `${fuelEntries.length} Records`;
     }
 
-    // LOGS TABLE
     function renderLogsTable() {
       const tbody = document.getElementById('logsTableBody');
       const noLogsMsg = document.getElementById('noLogsMsg');
@@ -810,7 +870,7 @@
           <td class="py-2.5 px-2 text-white">RM ${entry.paidAmount.toFixed(2)}</td>
           <td class="py-2.5 px-2 text-neon-emerald">RM ${entry.subsidySaved.toFixed(2)}</td>
           <td class="py-2.5 px-2 text-right">
-            <button onclick="deleteEntry(${entry.id})" class="text-red-400 hover:text-red-300 p-1">
+            <button type="button" onclick="deleteEntry(${entry.id})" class="text-red-400 hover:text-red-300 p-1">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
             </button>
           </td>
@@ -823,13 +883,14 @@
     function deleteEntry(id) {
       if (confirm('Delete this fueling record?')) {
         fuelEntries = fuelEntries.filter(e => e.id !== id);
-        localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries));
+        try {
+          localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries));
+        } catch(e){}
         renderLogsTable();
         updateDashboardStats();
       }
     }
 
-    // RENDER SUMMARY REPORT
     function renderReport() {
       const reportBody = document.getElementById('reportTableBody');
       reportBody.innerHTML = '';
@@ -841,19 +902,20 @@
       let totalSaved = 0;
 
       fuelEntries.forEach(item => {
-        totalValue += item.fuelValue;
-        totalPaid += item.paidAmount;
-        totalSaved += item.subsidySaved;
+        totalValue += (item.fuelValue || 0);
+        totalPaid += (item.paidAmount || 0);
+        totalSaved += (item.subsidySaved || 0);
 
         const tr = document.createElement('tr');
-        tr.className = 'border-b border-slate-900';
+        tr.className = 'border-b border-slate-200';
         tr.innerHTML = `
-          <td class="py-1.5 px-1 text-white">${item.date}</td>
-          <td class="py-1.5 px-1 text-neon-cyan">${item.odometer}</td>
-          <td class="py-1.5 px-1 text-amber-glow">${item.fuelValue.toFixed(2)}</td>
-          <td class="py-1.5 px-1 text-white">${item.paidAmount.toFixed(2)}</td>
-          <td class="py-1.5 px-1 text-neon-emerald">${item.subsidySaved.toFixed(2)}</td>
-          <td class="py-1.5 px-1 text-gray-300">${item.bars}/8</td>
+          <td class="py-2 px-1.5 font-bold">${item.date}</td>
+          <td class="py-2 px-1.5">${item.odometer.toLocaleString()} km</td>
+          <td class="py-2 px-1.5 font-bold text-amber-700">RM ${item.fuelValue.toFixed(2)}</td>
+          <td class="py-2 px-1.5 font-bold">RM ${item.paidAmount.toFixed(2)}</td>
+          <td class="py-2 px-1.5 font-bold text-emerald-700">RM ${item.subsidySaved.toFixed(2)}</td>
+          <td class="py-2 px-1.5">${item.bars}/8</td>
+          <td class="py-2 px-1.5">${item.range ? item.range + ' km' : '-'}</td>
         `;
         reportBody.appendChild(tr);
       });
@@ -863,20 +925,18 @@
       document.getElementById('repTotalSavings').innerText = `RM ${totalSaved.toFixed(2)}`;
     }
 
-    // EXPORT PDF
     function downloadReportPDF() {
       const element = document.getElementById('pdfReportContainer');
       const opt = {
-        margin:       0.3,
+        margin:       0.2,
         filename:     `Mr_Yugas_Fueling_Summary_APK8745.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, backgroundColor: '#020617' },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
       html2pdf().set(opt).from(element).save();
     }
 
-    // EXPORT CSV
     function downloadReportCSV() {
       if (fuelEntries.length === 0) {
         alert('No data available to export.');
