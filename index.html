@@ -8,7 +8,7 @@
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- html2pdf for Report Export -->
+  <!-- html2pdf fallback -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
@@ -133,8 +133,12 @@
       animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
-    /* EXECUTIVE PRINT/PDF STYLING */
+    /* EXECUTIVE PRINT/PDF MEDIA STYLING (PREVENTS PDF CLIPPING) */
     @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
       body * {
         visibility: hidden;
       }
@@ -150,6 +154,7 @@
         color: #000000 !important;
         padding: 0 !important;
         border: none !important;
+        box-shadow: none !important;
       }
       .no-print {
         display: none !important;
@@ -160,7 +165,7 @@
 <body class="min-h-screen pb-12 antialiased">
 
   <!-- Header Banner -->
-  <header class="sticky top-0 z-40 bg-granite-950/90 backdrop-blur-md border-b border-granite-700/60 px-4 py-3">
+  <header class="sticky top-0 z-40 bg-granite-950/90 backdrop-blur-md border-b border-granite-700/60 px-4 py-3 no-print">
     <div class="max-w-xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="relative">
@@ -188,7 +193,7 @@
   </header>
 
   <!-- Navigation Tabs -->
-  <div class="max-w-xl mx-auto px-4 mt-4">
+  <div class="max-w-xl mx-auto px-4 mt-4 no-print">
     <nav class="grid grid-cols-3 gap-1 bg-granite-800/80 p-1.5 rounded-2xl border border-granite-700/50">
       <button type="button" onclick="switchTab('tab-entry')" id="btn-tab-entry" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-black bg-amber-glow shadow">
         <i data-lucide="fuel" class="w-4 h-4"></i>
@@ -209,14 +214,23 @@
 
   <main class="max-w-xl mx-auto px-4 mt-4 space-y-5">
 
-    <!-- Toast Notification Box -->
-    <div id="toastBox" class="hidden p-3 rounded-xl bg-red-950/90 border border-red-500 text-red-200 text-xs font-bold flex items-center justify-between">
+    <!-- Toast Alert Container -->
+    <div id="toastBox" class="hidden p-3 rounded-xl bg-red-950/90 border border-red-500 text-red-200 text-xs font-bold flex items-center justify-between no-print">
       <span id="toastMsg">Please fill in required fields.</span>
       <button type="button" onclick="hideToast()"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
 
-    <!-- Dashboard KPI Cards -->
-    <section class="grid grid-cols-2 gap-3">
+    <!-- Monthly Stats Indicator Banner -->
+    <div class="flex items-center justify-between bg-granite-900/80 p-3 rounded-xl border border-granite-700/70 text-xs no-print">
+      <div class="flex items-center gap-2 text-gray-300 font-semibold">
+        <i data-lucide="calendar-clock" class="w-4 h-4 text-amber-glow"></i>
+        <span>Active Month Overview: <strong id="currentMonthLabel" class="text-amber-glow">October 2026</strong></span>
+      </div>
+      <span class="text-[10px] text-neon-emerald bg-neon-emerald/10 px-2 py-0.5 rounded border border-neon-emerald/30 font-bold">Auto-Resetting</span>
+    </div>
+
+    <!-- Dashboard KPI Cards (Monthly Reset View) -->
+    <section class="grid grid-cols-2 gap-3 no-print">
       <div class="glass-card rounded-2xl p-3.5">
         <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Fuel Value</div>
         <div id="statTotalFuelValue" class="text-xl font-extrabold text-amber-glow font-mono">RM 0.00</div>
@@ -236,7 +250,7 @@
       </div>
 
       <div class="glass-card rounded-2xl p-3.5">
-        <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Subsidy Saved</div>
+        <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Subsidy Saved</div>
         <div id="statTotalSavings" class="text-xl font-extrabold text-neon-emerald font-mono">RM 0.00</div>
         <div class="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
           <i data-lucide="piggy-bank" class="w-3 h-3 text-neon-emerald"></i>
@@ -245,17 +259,30 @@
       </div>
 
       <div class="glass-card rounded-2xl p-3.5">
-        <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Latest Odometer</div>
-        <div id="statMaxOdo" class="text-xl font-extrabold text-neon-cyan font-mono">0 km</div>
+        <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Fueling Sessions</div>
+        <div id="statFuelSessions" class="text-xl font-extrabold text-purple-400 font-mono">0 Sessions</div>
         <div class="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
-          <i data-lucide="gauge" class="w-3 h-3 text-neon-cyan"></i>
-          <span>APK 8745 Mileage</span>
+          <i data-lucide="fuel" class="w-3 h-3 text-purple-400"></i>
+          <span>Logged This Month</span>
+        </div>
+      </div>
+
+      <!-- LATEST ODOMETER - PERSISTENT ACROSS MONTHS -->
+      <div class="glass-card rounded-2xl p-3.5 col-span-2 border-l-4 border-l-neon-cyan">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Latest Odometer Reading (All-Time)</div>
+            <div id="statMaxOdo" class="text-2xl font-extrabold text-neon-cyan font-mono">0 km</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan">
+            <i data-lucide="gauge" class="w-6 h-6"></i>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- TAB 1: FUELING ENTRY FORM -->
-    <section id="tab-entry" class="page-tab active space-y-4">
+    <section id="tab-entry" class="page-tab active space-y-4 no-print">
 
       <!-- Web Showcase Photo Banner -->
       <div class="glass-card rounded-2xl p-3.5 flex flex-col items-center justify-center relative overflow-hidden border border-granite-700/80">
@@ -320,7 +347,7 @@
         <div>
           <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-glow"></i>
-            Total Fuel Value (RM) <span class="text-amber-glow">(With Subsidy Value)</span> *
+            Total Fuel Value (RM) <span class="text-amber-glow">(With Subsidy)</span> *
           </label>
           <div class="relative">
             <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-sm">RM</span>
@@ -386,7 +413,7 @@
     </section>
 
     <!-- TAB 2: FUEL LOGS HISTORY -->
-    <section id="tab-logs" class="page-tab space-y-4">
+    <section id="tab-logs" class="page-tab space-y-4 no-print">
       <div class="glass-card rounded-2xl p-4">
         <div class="flex items-center justify-between mb-3 border-b border-granite-700/80 pb-3">
           <h2 class="font-bold text-base text-white flex items-center gap-2">
@@ -424,102 +451,110 @@
 
     <!-- TAB 3: SUMMARY REPORT -->
     <section id="tab-report" class="page-tab space-y-4">
-      <div class="glass-card rounded-2xl p-4 space-y-4">
+      <div class="glass-card rounded-2xl p-4 space-y-4 no-print">
         <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
           <div>
             <h2 class="font-bold text-base text-white flex items-center gap-2">
               <i data-lucide="file-spreadsheet" class="w-5 h-5 text-amber-glow"></i>
               Mr Yuga's Fueling Summary
             </h2>
-            <p class="text-xs text-gray-400">Export high-resolution executive summary documents.</p>
+            <p class="text-xs text-gray-400">Export complete executive summary documents.</p>
           </div>
         </div>
 
-        <div class="flex gap-2">
-          <button type="button" onclick="downloadReportPDF()" class="flex-1 btn-glow py-2.5 rounded-xl text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow cursor-pointer">
-            <i data-lucide="download" class="w-4 h-4"></i>
-            <span>Download PDF</span>
-          </button>
+        <!-- Filter Controls -->
+        <div class="flex items-center gap-2 bg-granite-900/80 p-2.5 rounded-xl border border-granite-700/80">
+          <label class="text-xs font-bold text-gray-300">Report Scope:</label>
+          <select id="reportScopeSelect" onchange="renderReport()" class="bg-granite-800 text-white font-mono text-xs px-3 py-1.5 rounded-lg border border-granite-600 focus:outline-none flex-1">
+            <option value="current">Current Month Only</option>
+            <option value="all">All-Time Fueling History</option>
+          </select>
+        </div>
 
-          <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl bg-granite-800 hover:bg-granite-700 text-amber-glow font-bold text-xs flex items-center justify-center border border-granite-700 cursor-pointer" title="Print Document">
+        <div class="flex gap-2">
+          <button type="button" onclick="printReportDocument()" class="flex-1 btn-glow py-2.5 rounded-xl text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow cursor-pointer">
             <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Print / Save PDF</span>
           </button>
           
           <button type="button" onclick="downloadReportCSV()" class="px-4 py-2.5 rounded-xl bg-granite-800 hover:bg-granite-700 text-neon-cyan font-bold text-xs flex items-center justify-center border border-granite-700 cursor-pointer" title="Export CSV">
             <i data-lucide="file-output" class="w-4 h-4"></i>
           </button>
         </div>
+      </div>
 
-        <!-- PRINTABLE DOCUMENT CONTAINER (EXECUTIVE WHITE REPORT THEME) -->
-        <div id="pdfReportContainer" class="bg-white text-slate-900 p-6 rounded-xl border border-slate-300 space-y-5 shadow-xl">
-          
-          <!-- Document Header -->
-          <div class="flex items-start justify-between border-b-2 border-slate-900 pb-4">
-            <div>
-              <h1 class="text-xl font-black text-slate-900 tracking-tight uppercase">Mr Yuga's Fueling Summary</h1>
-              <p class="text-xs text-slate-600 font-semibold mt-0.5">Vehicle: <strong class="text-slate-900">Perodua Bezza AV (Granite Grey)</strong></p>
-              <p class="text-xs text-slate-600 font-semibold">Plate Number: <strong class="text-amber-600 font-mono">APK 8745</strong></p>
-            </div>
-            <div class="text-right">
-              <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">Report Date</span>
-              <span id="reportGenDate" class="text-xs font-mono font-bold text-slate-900">--/--/----</span>
-            </div>
+      <!-- PRINTABLE DOCUMENT CONTAINER (EXECUTIVE PRINTABLE FORMAT) -->
+      <div id="pdfReportContainer" class="bg-white text-slate-900 p-6 rounded-xl border border-slate-300 space-y-5 shadow-2xl">
+        
+        <!-- Document Header -->
+        <div class="flex items-start justify-between border-b-2 border-slate-900 pb-4">
+          <div>
+            <h1 class="text-xl font-black text-slate-900 tracking-tight uppercase">Mr Yuga's Fueling Summary</h1>
+            <p class="text-xs text-slate-600 font-semibold mt-0.5">Vehicle: <strong class="text-slate-900">Perodua Bezza AV (Granite Grey)</strong></p>
+            <p class="text-xs text-slate-600 font-semibold">Plate Number: <strong class="text-amber-600 font-mono">APK 8745</strong></p>
           </div>
-
-          <!-- Printable Banner Photo -->
-          <div class="w-full h-44 rounded-lg overflow-hidden border border-slate-300 bg-slate-100">
-            <img id="reportCarPhoto" class="w-full h-full object-cover" src="" alt="Perodua Bezza AV">
-          </div>
-
-          <!-- Key Financial Metrics Box -->
-          <div class="grid grid-cols-3 gap-3 text-center bg-slate-100 p-3.5 rounded-lg border border-slate-300">
-            <div>
-              <div class="text-[10px] text-slate-500 uppercase font-bold">Total Fuel Value</div>
-              <div id="repFuelValue" class="text-base font-black font-mono text-amber-600 mt-0.5">RM 0.00</div>
-            </div>
-            <div>
-              <div class="text-[10px] text-slate-500 uppercase font-bold">Actual Paid</div>
-              <div id="repActualPaid" class="text-base font-black font-mono text-slate-900 mt-0.5">RM 0.00</div>
-            </div>
-            <div>
-              <div class="text-[10px] text-slate-500 uppercase font-bold">Subsidy Savings</div>
-              <div id="repTotalSavings" class="text-base font-black font-mono text-emerald-600 mt-0.5">RM 0.00</div>
-            </div>
-          </div>
-
-          <!-- Full Breakdown Table -->
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr class="border-b-2 border-slate-900 text-slate-700 font-mono uppercase text-[11px]">
-                  <th class="py-2 px-1.5">Date</th>
-                  <th class="py-2 px-1.5">Odometer</th>
-                  <th class="py-2 px-1.5">Fuel Value</th>
-                  <th class="py-2 px-1.5">Actual Paid</th>
-                  <th class="py-2 px-1.5">Saved</th>
-                  <th class="py-2 px-1.5">Bars</th>
-                  <th class="py-2 px-1.5">Range</th>
-                </tr>
-              </thead>
-              <tbody id="reportTableBody" class="divide-y divide-slate-200 font-mono text-slate-900">
-                <!-- Data populated dynamically -->
-              </tbody>
-            </table>
-          </div>
-
-          <div class="text-[10px] text-slate-500 text-center border-t border-slate-300 pt-3 font-mono">
-            Official Fueling Record • Generated for Mr Yuga • Perodua Bezza AV (APK 8745)
+          <div class="text-right">
+            <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">Report Date</span>
+            <span id="reportGenDate" class="text-xs font-mono font-bold text-slate-900">--/--/----</span>
           </div>
         </div>
 
+        <!-- Vehicle Image Banner -->
+        <div class="w-full h-44 rounded-lg overflow-hidden border border-slate-300 bg-slate-100">
+          <img id="reportCarPhoto" class="w-full h-full object-cover" src="" alt="Perodua Bezza AV">
+        </div>
+
+        <!-- Key Financial Metrics Box -->
+        <div class="grid grid-cols-4 gap-2 text-center bg-slate-100 p-3.5 rounded-lg border border-slate-300">
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase font-bold">Total Fuel Value</div>
+            <div id="repFuelValue" class="text-sm font-black font-mono text-amber-600 mt-0.5">RM 0.00</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase font-bold">Actual Paid</div>
+            <div id="repActualPaid" class="text-sm font-black font-mono text-slate-900 mt-0.5">RM 0.00</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase font-bold">Subsidy Saved</div>
+            <div id="repTotalSavings" class="text-sm font-black font-mono text-emerald-600 mt-0.5">RM 0.00</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase font-bold">Fuel Sessions</div>
+            <div id="repSessions" class="text-sm font-black font-mono text-purple-700 mt-0.5">0</div>
+          </div>
+        </div>
+
+        <!-- Complete Breakdown Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b-2 border-slate-900 text-slate-700 font-mono uppercase text-[11px]">
+                <th class="py-2 px-1.5">Fuel Date</th>
+                <th class="py-2 px-1.5">Odometer</th>
+                <th class="py-2 px-1.5">Fuel Value</th>
+                <th class="py-2 px-1.5">Actual Paid</th>
+                <th class="py-2 px-1.5">Subsidy Saved</th>
+                <th class="py-2 px-1.5">Bars</th>
+                <th class="py-2 px-1.5">Range</th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody" class="divide-y divide-slate-200 font-mono text-slate-900">
+              <!-- Data populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="text-[10px] text-slate-500 text-center border-t border-slate-300 pt-3 font-mono">
+          Official Fueling Document • Generated for Mr Yuga • Perodua Bezza AV (APK 8745)
+        </div>
       </div>
+
     </section>
 
   </main>
 
-
   <!-- THANK YOU POPUP MODAL (ROUND DP - NO EMOJI) -->
-  <div id="thankYouModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+  <div id="thankYouModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden no-print">
     <div class="glass-card rounded-3xl p-6 max-w-sm w-full text-center space-y-4 border border-amber-glow/40 shadow-2xl animate-pop relative">
       
       <!-- Clean Round DP Container -->
@@ -546,9 +581,8 @@
     </div>
   </div>
 
-
   <!-- SEPARATE DUAL PHOTO MANAGEMENT MODAL -->
-  <div id="imageModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+  <div id="imageModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden no-print">
     <div class="glass-card rounded-3xl p-5 max-w-md w-full space-y-5 border border-granite-700 shadow-2xl">
       <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
         <h3 class="font-bold text-sm text-white flex items-center gap-2">
@@ -769,6 +803,22 @@
       if (tabId === 'tab-report') renderReport();
     }
 
+    // CHECK IF ENTRY IS IN CURRENT MONTH/YEAR
+    function isEntryInCurrentMonth(dateStr) {
+      if(!dateStr) return false;
+      const parts = dateStr.split('/');
+      if(parts.length !== 3) return false;
+      
+      const entryMonth = parseInt(parts[1], 10);
+      const entryYear = parseInt(parts[2], 10);
+
+      const now = new Date();
+      const currentMonth = now.getMonth() + 1;
+      const currentYear = now.getFullYear();
+
+      return (entryMonth === currentMonth && entryYear === currentYear);
+    }
+
     function executeSaveFuelEntry() {
       hideToast();
       const date = document.getElementById('inputDate').value.trim() || getTodayFormattedDDMMYYYY();
@@ -829,24 +879,38 @@
       document.getElementById('thankYouModal').classList.add('hidden');
     }
 
+    // DASHBOARD STATS (CURRENT MONTH AUTOMATIC RESET LOGIC)
     function updateDashboardStats() {
       let totalValue = 0;
       let totalPaid = 0;
       let totalSaved = 0;
+      let monthSessions = 0;
       let maxOdo = 0;
 
+      // Always calculate max odometer across all-time history
       fuelEntries.forEach(entry => {
-        totalValue += (entry.fuelValue || 0);
-        totalPaid += (entry.paidAmount || 0);
-        totalSaved += (entry.subsidySaved || 0);
         if (entry.odometer > maxOdo) maxOdo = entry.odometer;
+
+        // Reset month-based stats if entry belongs to active month
+        if (isEntryInCurrentMonth(entry.date)) {
+          totalValue += (entry.fuelValue || 0);
+          totalPaid += (entry.paidAmount || 0);
+          totalSaved += (entry.subsidySaved || 0);
+          monthSessions++;
+        }
       });
 
       document.getElementById('statTotalFuelValue').innerText = `RM ${totalValue.toFixed(2)}`;
       document.getElementById('statTotalPaid').innerText = `RM ${totalPaid.toFixed(2)}`;
       document.getElementById('statTotalSavings').innerText = `RM ${totalSaved.toFixed(2)}`;
+      document.getElementById('statFuelSessions').innerText = `${monthSessions} Session${monthSessions !== 1 ? 's' : ''}`;
       document.getElementById('statMaxOdo').innerText = `${maxOdo.toLocaleString()} km`;
       document.getElementById('logCountBadge').innerText = `${fuelEntries.length} Records`;
+
+      // Set label
+      const now = new Date();
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      document.getElementById('currentMonthLabel').innerText = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
     }
 
     function renderLogsTable() {
@@ -897,44 +961,43 @@
 
       document.getElementById('reportGenDate').innerText = getTodayFormattedDDMMYYYY();
 
+      const scope = document.getElementById('reportScopeSelect').value;
+
       let totalValue = 0;
       let totalPaid = 0;
       let totalSaved = 0;
+      let totalSessions = 0;
 
       fuelEntries.forEach(item => {
-        totalValue += (item.fuelValue || 0);
-        totalPaid += (item.paidAmount || 0);
-        totalSaved += (item.subsidySaved || 0);
+        if (scope === 'all' || isEntryInCurrentMonth(item.date)) {
+          totalValue += (item.fuelValue || 0);
+          totalPaid += (item.paidAmount || 0);
+          totalSaved += (item.subsidySaved || 0);
+          totalSessions++;
 
-        const tr = document.createElement('tr');
-        tr.className = 'border-b border-slate-200';
-        tr.innerHTML = `
-          <td class="py-2 px-1.5 font-bold">${item.date}</td>
-          <td class="py-2 px-1.5">${item.odometer.toLocaleString()} km</td>
-          <td class="py-2 px-1.5 font-bold text-amber-700">RM ${item.fuelValue.toFixed(2)}</td>
-          <td class="py-2 px-1.5 font-bold">RM ${item.paidAmount.toFixed(2)}</td>
-          <td class="py-2 px-1.5 font-bold text-emerald-700">RM ${item.subsidySaved.toFixed(2)}</td>
-          <td class="py-2 px-1.5">${item.bars}/8</td>
-          <td class="py-2 px-1.5">${item.range ? item.range + ' km' : '-'}</td>
-        `;
-        reportBody.appendChild(tr);
+          const tr = document.createElement('tr');
+          tr.className = 'border-b border-slate-200';
+          tr.innerHTML = `
+            <td class="py-2 px-1.5 font-bold">${item.date}</td>
+            <td class="py-2 px-1.5">${item.odometer.toLocaleString()} km</td>
+            <td class="py-2 px-1.5 font-bold text-amber-700">RM ${item.fuelValue.toFixed(2)}</td>
+            <td class="py-2 px-1.5 font-bold">RM ${item.paidAmount.toFixed(2)}</td>
+            <td class="py-2 px-1.5 font-bold text-emerald-700">RM ${item.subsidySaved.toFixed(2)}</td>
+            <td class="py-2 px-1.5">${item.bars}/8</td>
+            <td class="py-2 px-1.5">${item.range ? item.range + ' km' : '-'}</td>
+          `;
+          reportBody.appendChild(tr);
+        }
       });
 
       document.getElementById('repFuelValue').innerText = `RM ${totalValue.toFixed(2)}`;
       document.getElementById('repActualPaid').innerText = `RM ${totalPaid.toFixed(2)}`;
       document.getElementById('repTotalSavings').innerText = `RM ${totalSaved.toFixed(2)}`;
+      document.getElementById('repSessions').innerText = totalSessions;
     }
 
-    function downloadReportPDF() {
-      const element = document.getElementById('pdfReportContainer');
-      const opt = {
-        margin:       0.2,
-        filename:     `Mr_Yugas_Fueling_Summary_APK8745.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
+    function printReportDocument() {
+      window.print();
     }
 
     function downloadReportCSV() {
