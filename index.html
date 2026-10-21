@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mr Yuga's Fueling Summary - Perodua Bezza AV (APK 8745)</title>
+  
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- html2pdf for Report Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            granite: {
+              950: '#07090b',
+              900: '#0d1117',
+              800: '#161b22',
+              700: '#21262d',
+              600: '#30363d',
+              500: '#484f58',
+              400: '#8b949e',
+            },
+            amber: {
+              glow: '#ffb703',
+              dark: '#fb8500',
+            },
+            neon: {
+              cyan: '#00e5ff',
+              emerald: '#10b981',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #07090b;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(255, 183, 3, 0.05) 0%, transparent 35%),
+        radial-gradient(circle at 85% 85%, rgba(0, 229, 255, 0.04) 0%, transparent 35%);
+      color: #f0f6fc;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .glass-card {
+      background: rgba(22, 27, 34, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+    }
+
+    .input-field {
+      background: rgba(13, 17, 23, 0.95);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      transition: all 0.2s ease-in-out;
+      pointer-events: auto !important;
+      position: relative;
+      z-index: 10;
+    }
+
+    .input-field:focus {
+      border-color: #ffb703;
+      box-shadow: 0 0 0 3px rgba(255, 183, 3, 0.25);
+      outline: none;
+    }
+
+    .btn-glow {
+      background: linear-gradient(135deg, #ffb703 0%, #fb8500 100%);
+      box-shadow: 0 4px 20px rgba(255, 183, 3, 0.35);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-glow:active {
+      transform: scale(0.98);
+    }
+
+    .fuel-bar {
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+
+    .fuel-bar.active-low {
+      background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+      border-color: #fca5a5;
+    }
+
+    .fuel-bar.active-mid {
+      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+      border-color: #fde68a;
+    }
+
+    .fuel-bar.active-high {
+      background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+      border-color: #a7f3d0;
+    }
+
+    .page-tab {
+      display: none;
+    }
+
+    .page-tab.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.88); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .animate-pop {
+      animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-12 antialiased selection:bg-amber-glow selection:text-black">
+
+  <!-- Header Banner -->
+  <header class="sticky top-0 z-40 bg-granite-950/90 backdrop-blur-md border-b border-granite-700/60 px-4 py-3">
+    <div class="max-w-xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <img id="headerCarAvatar" class="w-11 h-11 rounded-xl object-cover border border-amber-glow/50 shadow-md bg-granite-800" src="" alt="Perodua Bezza AV">
+          <span class="absolute -bottom-1 -right-1 bg-amber-glow text-black font-extrabold text-[9px] px-1 rounded shadow">AV</span>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-base text-white tracking-tight flex items-center gap-1.5">
+            Mr Yuga's Fueling
+          </h1>
+          <p class="text-xs text-amber-glow/90 font-medium flex items-center gap-1">
+            <span>Perodua Bezza AV</span>
+            <span class="text-granite-500">•</span>
+            <span class="text-gray-300 font-mono">Granite Grey</span>
+            <span class="text-granite-500">•</span>
+            <span class="bg-black/50 text-amber-glow font-mono font-bold px-1.5 rounded text-[10px] border border-amber-glow/30">APK 8745</span>
+          </p>
+        </div>
+      </div>
+
+      <button onclick="openImageModal()" class="p-2.5 rounded-xl bg-granite-800/90 border border-granite-600/50 text-gray-300 hover:text-white hover:border-amber-glow/50 transition">
+        <i data-lucide="settings-2" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Navigation Tabs -->
+  <div class="max-w-xl mx-auto px-4 mt-4">
+    <nav class="grid grid-cols-3 gap-1 bg-granite-800/80 p-1.5 rounded-2xl border border-granite-700/50">
+      <button onclick="switchTab('tab-entry')" id="btn-tab-entry" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-black bg-amber-glow shadow">
+        <i data-lucide="fuel" class="w-4 h-4"></i>
+        <span>Fueling Entry</span>
+      </button>
+
+      <button onclick="switchTab('tab-logs')" id="btn-tab-logs" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-gray-400 hover:text-white">
+        <i data-lucide="list-ordered" class="w-4 h-4"></i>
+        <span>Fuel Logs</span>
+      </button>
+
+      <button onclick="switchTab('tab-report')" id="btn-tab-report" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-gray-400 hover:text-white">
+        <i data-lucide="file-text" class="w-4 h-4"></i>
+        <span>Summary Report</span>
+      </button>
+    </nav>
+  </div>
+
+  <main class="max-w-xl mx-auto px-4 mt-4 space-y-5">
+
+    <!-- KPI Dashboard Overview -->
+    <section class="grid grid-cols-2 gap-3">
+      <div class="glass-card rounded-2xl p-3.5">
+        <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Fuel Value</div>
+        <div id="statTotalFuelValue" class="text-xl font-extrabold text-amber-glow font-mono">RM 0.00</div>
+        <div class="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
+          <i data-lucide="zap" class="w-3 h-3 text-amber-400"></i>
+          <span>With Subsidy Total</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-3.5">
+        <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Actual Amount Paid</div>
+        <div id="statTotalPaid" class="text-xl font-extrabold text-white font-mono">RM 0.00</div>
+        <div class="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
+          <i data-lucide="wallet" class="w-3 h-3 text-slate-400"></i>
+          <span>Out-of-Pocket Expense</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-3.5">
+        <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Subsidy Saved</div>
+        <div id="statTotalSavings" class="text-xl font-extrabold text-neon-emerald font-mono">RM 0.00</div>
+        <div class="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
+          <i data-lucide="piggy-bank" class="w-3 h-3 text-neon-emerald"></i>
+          <span>Auto-Deducted Savings</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-3.5">
+        <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Latest Odometer</div>
+        <div id="statMaxOdo" class="text-xl font-extrabold text-neon-cyan font-mono">0 km</div>
+        <div class="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
+          <i data-lucide="gauge" class="w-3 h-3 text-neon-cyan"></i>
+          <span>APK 8745 Mileage</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 1: FUELING ENTRY FORM -->
+    <section id="tab-entry" class="page-tab active space-y-4">
+
+      <!-- Showcase Vehicle Banner -->
+      <div class="glass-card rounded-2xl p-3.5 flex flex-col items-center justify-center relative overflow-hidden border border-granite-700/80">
+        <div class="w-full h-52 rounded-xl overflow-hidden bg-black relative border border-granite-700/60 flex items-center justify-center">
+          <img id="mainVehiclePhoto" class="w-full h-full object-cover" src="" alt="Perodua Bezza AV Granite Grey">
+          
+          <button onclick="openImageModal()" class="absolute top-2 right-2 px-3 py-1.5 rounded-lg bg-black/75 text-amber-glow font-bold text-xs flex items-center gap-1.5 border border-amber-glow/40 shadow">
+            <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+            <span>Change Photo</span>
+          </button>
+
+          <div class="absolute bottom-2 right-2 bg-black/85 text-amber-glow font-mono font-bold text-xs px-2.5 py-1 rounded-md border border-amber-glow/40 shadow">
+            APK 8745
+          </div>
+        </div>
+
+        <div class="w-full flex items-center justify-between mt-3 px-1">
+          <div>
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              Perodua Bezza 1.3 AV
+              <span class="w-2 h-2 rounded-full bg-neon-emerald"></span>
+            </h2>
+            <p class="text-xs text-gray-400 font-medium">Granite Grey Metallic • Main Web Photo</p>
+          </div>
+          <button onclick="openImageModal()" class="text-xs text-amber-glow font-semibold hover:underline flex items-center gap-1">
+            <i data-lucide="image" class="w-3.5 h-3.5"></i>
+            <span>Manage Photos</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Fueling Form Container -->
+      <form id="fuelForm" onsubmit="handleSaveFuelEntry(event)" class="glass-card rounded-2xl p-4 space-y-4">
+        <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
+          <h2 class="font-bold text-base text-white flex items-center gap-2">
+            <i data-lucide="fuel" class="w-5 h-5 text-amber-glow"></i>
+            Log Fueling Entry
+          </h2>
+        </div>
+
+        <!-- 1. DATE FIELD -->
+        <div>
+          <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-glow"></i>
+            Date (DD/MM/YYYY)
+          </label>
+          <input type="text" id="inputDate" required placeholder="DD/MM/YYYY"
+            class="input-field w-full px-3.5 py-2.5 rounded-xl text-sm font-mono">
+        </div>
+
+        <!-- 2. CURRENT ODOMETER -->
+        <div>
+          <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+            <i data-lucide="gauge" class="w-3.5 h-3.5 text-neon-cyan"></i>
+            Current Odometer (KM)
+          </label>
+          <input type="number" id="inputOdometer" required placeholder="e.g. 45200" step="1" min="0" inputmode="numeric"
+            class="input-field w-full px-3.5 py-2.5 rounded-xl text-sm font-mono">
+        </div>
+
+        <!-- 3. TOTAL FUEL VALUE WITH SUBSIDY (RM) -->
+        <div>
+          <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-glow"></i>
+            Total Fuel Value (RM) <span class="text-amber-glow">(With Subsidy)</span> *
+          </label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-sm">RM</span>
+            <input type="number" id="inputFuelValue" required placeholder="116.85" step="0.01" min="0.01" inputmode="decimal"
+              class="input-field w-full pl-11 pr-3.5 py-2.5 rounded-xl text-sm font-mono">
+          </div>
+          <p class="text-[11px] text-gray-400 mt-1">Example: Total fuel pumped value (e.g. RM 116.85).</p>
+        </div>
+
+        <!-- 4. ACTUAL PAID AMOUNT (RM) -->
+        <div>
+          <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+            <i data-lucide="wallet" class="w-3.5 h-3.5 text-neon-emerald"></i>
+            Actual Paid Amount (RM) <span class="text-neon-emerald">(Out-of-Pocket Spent)</span> *
+          </label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-sm">RM</span>
+            <input type="number" id="inputPaidAmount" required placeholder="50.00" step="0.01" min="0" inputmode="decimal"
+              class="input-field w-full pl-11 pr-3.5 py-2.5 rounded-xl text-sm font-mono">
+          </div>
+          <p class="text-[11px] text-gray-400 mt-1">Example: Actual money paid out of pocket (e.g. RM 50.00).</p>
+        </div>
+
+        <!-- 5. AVERAGE RANGE SHOWN AFTER FUEL -->
+        <div>
+          <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+            <i data-lucide="navigation" class="w-3.5 h-3.5 text-neon-cyan"></i>
+            Average Range Shown After Fuel (KM)
+          </label>
+          <input type="number" id="inputRange" placeholder="e.g. 580" step="1" min="0" inputmode="numeric"
+            class="input-field w-full px-3.5 py-2.5 rounded-xl text-sm font-mono">
+        </div>
+
+        <!-- 6. FUEL BAR LEFT BEFORE FUEL (PERODUA 8 BARS - STARTS AT 0) -->
+        <div class="bg-granite-900/80 p-3.5 rounded-xl border border-granite-700/80 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-amber-glow uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="barcode" class="w-4 h-4"></i>
+              Fuel Bar Left Before Fuel
+            </label>
+            <span class="text-xs font-mono font-bold text-gray-300">
+              Full Tank = <strong class="text-amber-glow">8 Bars</strong>
+            </span>
+          </div>
+
+          <!-- Interactive 8 Bar Gauge (Default 0 selected) -->
+          <div class="grid grid-cols-8 gap-1.5 py-2" id="fuelGaugeBars">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <div class="flex items-center justify-between text-[11px] font-mono text-gray-400 pt-1">
+            <span class="text-red-400 font-bold">E (Empty)</span>
+            <span id="selectedBarLabel" class="text-white font-bold text-xs">0 / 8 Bars Left (0%)</span>
+            <span class="text-neon-emerald font-bold">F (Full)</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-glow w-full py-3.5 rounded-xl text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg mt-2">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          <span>Save Fueling Entry</span>
+        </button>
+      </form>
+    </section>
+
+
+    <!-- TAB 2: FUEL LOGS HISTORY -->
+    <section id="tab-logs" class="page-tab space-y-4">
+      <div class="glass-card rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3 border-b border-granite-700/80 pb-3">
+          <h2 class="font-bold text-base text-white flex items-center gap-2">
+            <i data-lucide="history" class="w-5 h-5 text-amber-glow"></i>
+            Fueling History Logs
+          </h2>
+          <span id="logCountBadge" class="text-xs font-mono font-bold bg-granite-800 border border-granite-700 px-2.5 py-1 rounded-full text-amber-glow">
+            0 Records
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-granite-700 text-gray-400 font-mono uppercase tracking-wider">
+                <th class="py-2.5 px-2">Date</th>
+                <th class="py-2.5 px-2">Odometer</th>
+                <th class="py-2.5 px-2">Fuel Value</th>
+                <th class="py-2.5 px-2">Paid Spent</th>
+                <th class="py-2.5 px-2">Saved</th>
+                <th class="py-2.5 px-2 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="logsTableBody" class="divide-y divide-granite-800 font-mono">
+              <!-- Logs populated via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="noLogsMsg" class="text-center py-8 text-gray-500 text-xs">
+          No fueling records logged yet for APK 8745.
+        </div>
+      </div>
+    </section>
+
+
+    <!-- TAB 3: SUMMARY REPORT (MR YUGA'S FUELING SUMMARY) -->
+    <section id="tab-report" class="page-tab space-y-4">
+      <div class="glass-card rounded-2xl p-4 space-y-4">
+        <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
+          <div>
+            <h2 class="font-bold text-base text-white flex items-center gap-2">
+              <i data-lucide="file-spreadsheet" class="w-5 h-5 text-amber-glow"></i>
+              Mr Yuga's Fueling Summary
+            </h2>
+            <p class="text-xs text-gray-400">Generate and download official fueling summary reports.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <button onclick="downloadReportPDF()" class="flex-1 btn-glow py-2.5 rounded-xl text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Download PDF</span>
+          </button>
+          
+          <button onclick="downloadReportCSV()" class="px-4 py-2.5 rounded-xl bg-granite-800 hover:bg-granite-700 text-neon-cyan font-bold text-xs flex items-center justify-center border border-granite-700" title="Export CSV">
+            <i data-lucide="file-output" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Printable Document Area -->
+        <div id="pdfReportContainer" class="bg-slate-950 p-4 rounded-xl border border-granite-700/80 text-white space-y-4">
+          <!-- Printable Header -->
+          <div class="flex items-start justify-between border-b border-gray-800 pb-3">
+            <div>
+              <h1 class="text-lg font-extrabold text-amber-glow tracking-tight">Mr Yuga's Fueling Summary</h1>
+              <p class="text-xs text-gray-300 font-medium mt-0.5">Vehicle: <strong class="text-white">Perodua Bezza AV (Granite Grey)</strong></p>
+              <p class="text-xs text-gray-300 font-medium">Plate Number: <strong class="text-amber-glow font-mono">APK 8745</strong></p>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-gray-400 uppercase tracking-widest block">Report Date</span>
+              <span id="reportGenDate" class="text-xs font-mono font-bold text-neon-cyan">--/--/----</span>
+            </div>
+          </div>
+
+          <!-- Car Photo Banner in Report -->
+          <div class="w-full h-36 rounded-lg overflow-hidden border border-gray-800 bg-black">
+            <img id="reportCarPhoto" class="w-full h-full object-cover" src="" alt="Perodua Bezza AV">
+          </div>
+
+          <!-- Summary Key Figures -->
+          <div class="grid grid-cols-3 gap-2 text-center bg-slate-900 p-3 rounded-lg border border-slate-800">
+            <div>
+              <div class="text-[10px] text-gray-400 uppercase font-bold">Total Fuel Value</div>
+              <div id="repFuelValue" class="text-sm font-extrabold font-mono text-amber-glow mt-0.5">RM 0.00</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-gray-400 uppercase font-bold">Actual Paid</div>
+              <div id="repActualPaid" class="text-sm font-extrabold font-mono text-white mt-0.5">RM 0.00</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-gray-400 uppercase font-bold">Subsidy Saved</div>
+              <div id="repTotalSavings" class="text-sm font-extrabold font-mono text-neon-emerald mt-0.5">RM 0.00</div>
+            </div>
+          </div>
+
+          <!-- Detailed Breakdown Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-[11px] border-collapse">
+              <thead>
+                <tr class="border-b border-gray-800 text-gray-400 font-mono">
+                  <th class="py-1.5 px-1">Date</th>
+                  <th class="py-1.5 px-1">Odometer</th>
+                  <th class="py-1.5 px-1">Fuel Value</th>
+                  <th class="py-1.5 px-1">Paid Spent</th>
+                  <th class="py-1.5 px-1">Saved</th>
+                  <th class="py-1.5 px-1">Bars</th>
+                </tr>
+              </thead>
+              <tbody id="reportTableBody" class="divide-y divide-slate-900 font-mono">
+                <!-- Data populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="text-[10px] text-gray-500 text-center border-t border-gray-900 pt-2 font-mono">
+            Generated specifically for Mr Yuga • Perodua Bezza AV (APK 8745)
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- THANK YOU POPUP MODAL (ROUND DP - NO EMOJI) -->
+  <div id="thankYouModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-card rounded-3xl p-6 max-w-sm w-full text-center space-y-4 border border-amber-glow/40 shadow-2xl animate-pop relative">
+      
+      <!-- Clean Round DP Container -->
+      <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden border-2 border-amber-glow shadow-xl bg-granite-800">
+        <img id="popupCarPhoto" class="w-full h-full object-cover" src="" alt="Thank You DP">
+      </div>
+
+      <div>
+        <h3 class="text-lg font-extrabold text-white">Thank You for Fueling Me!</h3>
+        <p class="text-xs text-amber-glow font-mono font-bold mt-1">Perodua Bezza AV • APK 8745</p>
+        <p class="text-xs text-gray-300 mt-2">Your entry has been saved successfully to Mr Yuga's logbook.</p>
+      </div>
+
+      <div class="bg-granite-900/90 p-3 rounded-xl border border-granite-700/80 text-left text-xs font-mono space-y-1">
+        <div class="flex justify-between"><span class="text-gray-400">Date:</span><span id="popDate" class="text-white font-bold"></span></div>
+        <div class="flex justify-between"><span class="text-gray-400">Odometer:</span><span id="popOdo" class="text-neon-cyan font-bold"></span></div>
+        <div class="flex justify-between"><span class="text-gray-400">Paid Amount:</span><span id="popAmount" class="text-white font-bold"></span></div>
+        <div class="flex justify-between"><span class="text-gray-400">Subsidy Saved:</span><span id="popSavings" class="text-neon-emerald font-bold"></span></div>
+      </div>
+
+      <button onclick="closeThankYouModal()" class="btn-glow w-full py-3 rounded-xl text-black font-extrabold text-xs shadow-lg">
+        Awesome, Drive Safe!
+      </button>
+    </div>
+  </div>
+
+
+  <!-- SEPARATE DUAL PHOTO MANAGEMENT MODAL -->
+  <div id="imageModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-card rounded-3xl p-5 max-w-md w-full space-y-5 border border-granite-700 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
+        <h3 class="font-bold text-sm text-white flex items-center gap-2">
+          <i data-lucide="image" class="w-4 h-4 text-amber-glow"></i>
+          Manage Vehicle Photos
+        </h3>
+        <button onclick="closeImageModal()" class="text-gray-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- FEATURE 1: MAIN WEB SHOWCASE & PDF REPORT PHOTO -->
+      <div class="space-y-2 bg-granite-900/90 p-3 rounded-2xl border border-granite-700/80">
+        <div class="flex items-center gap-3">
+          <img id="previewWebPhoto" class="w-14 h-14 rounded-xl object-cover border border-granite-700 bg-granite-800" src="" alt="Web Photo">
+          <div>
+            <h4 class="text-xs font-bold text-white">1. Main Web & PDF Report Photo</h4>
+            <p class="text-[10px] text-gray-400">Banner image used across top header & PDF exports.</p>
+          </div>
+        </div>
+        <input type="url" id="webPhotoUrl" placeholder="Google Drive Link or Direct Image URL"
+          class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
+        <input type="file" accept="image/*" onchange="handleFileUpload(event, 'web')"
+          class="block w-full text-[11px] text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-granite-800 file:text-amber-glow hover:file:bg-granite-700 cursor-pointer">
+      </div>
+
+      <!-- FEATURE 2: THANK YOU POP-UP ROUND DP -->
+      <div class="space-y-2 bg-granite-900/90 p-3 rounded-2xl border border-granite-700/80">
+        <div class="flex items-center gap-3">
+          <img id="previewThankYouPhoto" class="w-14 h-14 rounded-full object-cover border-2 border-amber-glow bg-granite-800" src="" alt="Thank You DP">
+          <div>
+            <h4 class="text-xs font-bold text-white">2. Thank You Display Picture (Round DP)</h4>
+            <p class="text-[10px] text-gray-400">Circular DP used specifically on the pop-up thank you note screen.</p>
+          </div>
+        </div>
+        <input type="url" id="thankYouPhotoUrl" placeholder="Google Drive Link or Direct Image URL"
+          class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
+        <input type="file" accept="image/*" onchange="handleFileUpload(event, 'thankyou')"
+          class="block w-full text-[11px] text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-granite-800 file:text-amber-glow hover:file:bg-granite-700 cursor-pointer">
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button onclick="saveAllPhotos()" class="btn-glow flex-1 py-2.5 rounded-xl text-black font-extrabold text-xs">
+          Save Photo Settings
+        </button>
+        <button onclick="closeImageModal()" class="px-4 py-2.5 rounded-xl bg-granite-800 text-gray-300 font-bold text-xs">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- APPLICATION JAVASCRIPT -->
+  <script>
+    // DEFAULT VECTOR SVG FALLBACK (PERODUA BEZZA GRANITE GREY APK 8745)
+    const DEFAULT_BEZZA_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450' width='100%' height='100%'><rect width='800' height='450' fill='%2311161d'/><path d='M0 320 Q 400 280 800 320 L 800 450 L 0 450 Z' fill='%231c232d'/><g fill='%234a4e51'><path d='M 140 250 Q 220 160 380 150 L 580 160 Q 680 180 720 250 Q 740 280 710 310 L 130 310 Q 100 280 140 250 Z'/></g><rect x='310' y='290' width='180' height='35' rx='6' fill='%23050505' stroke='%23ffb703' stroke-width='2'/><text x='400' y='313' font-family='monospace' font-weight='bold' font-size='18' fill='%23ffb703' text-anchor='middle'>APK 8745</text></svg>";
+
+    // APP STATE STORAGE
+    let fuelEntries = JSON.parse(localStorage.getItem('mrYuga_fuelEntries') || '[]');
+    let selectedFuelBars = 0; // DEFAULT TO 0 BARS
+    let savedWebPhoto = localStorage.getItem('mrYuga_webPhoto') || DEFAULT_BEZZA_SVG;
+    let savedThankYouPhoto = localStorage.getItem('mrYuga_thankYouPhoto') || DEFAULT_BEZZA_SVG;
+
+    // INITIALIZATION
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initCurrentDate();
+      renderFuelGaugeBars();
+      updateVehiclePhotos();
+      renderLogsTable();
+      updateDashboardStats();
+      renderReport();
+    });
+
+    // DATE FORMATTER DD/MM/YYYY
+    function getTodayFormattedDDMMYYYY() {
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, '0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const yyyy = today.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    function initCurrentDate() {
+      const dateInput = document.getElementById('inputDate');
+      if (dateInput) dateInput.value = getTodayFormattedDDMMYYYY();
+    }
+
+    // VEHICLE PHOTO MANAGEMENT
+    function updateVehiclePhotos() {
+      document.getElementById('headerCarAvatar').src = savedWebPhoto;
+      document.getElementById('mainVehiclePhoto').src = savedWebPhoto;
+      document.getElementById('reportCarPhoto').src = savedWebPhoto;
+      document.getElementById('popupCarPhoto').src = savedThankYouPhoto;
+      document.getElementById('previewWebPhoto').src = savedWebPhoto;
+      document.getElementById('previewThankYouPhoto').src = savedThankYouPhoto;
+    }
+
+    function openImageModal() {
+      document.getElementById('imageModal').classList.remove('hidden');
+    }
+
+    function closeImageModal() {
+      document.getElementById('imageModal').classList.add('hidden');
+    }
+
+    function convertGoogleDriveUrl(url) {
+      if (url.includes('drive.google.com')) {
+        const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+          return `https://lh3.googleusercontent.com/d/${match[1]}`;
+        }
+      }
+      return url;
+    }
+
+    function saveAllPhotos() {
+      const webUrl = document.getElementById('webPhotoUrl').value.trim();
+      const thankYouUrl = document.getElementById('thankYouPhotoUrl').value.trim();
+
+      if (webUrl) {
+        savedWebPhoto = convertGoogleDriveUrl(webUrl);
+        localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
+      }
+      if (thankYouUrl) {
+        savedThankYouPhoto = convertGoogleDriveUrl(thankYouUrl);
+        localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto);
+      }
+
+      updateVehiclePhotos();
+      closeImageModal();
+    }
+
+    function handleFileUpload(event, type) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          if (type === 'web') {
+            savedWebPhoto = e.target.result;
+            localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
+          } else {
+            savedThankYouPhoto = e.target.result;
+            localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto);
+          }
+          updateVehiclePhotos();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // 8-BAR DIGITAL FUEL GAUGE (STARTS AT 0)
+    function renderFuelGaugeBars() {
+      const container = document.getElementById('fuelGaugeBars');
+      container.innerHTML = '';
+
+      for (let i = 1; i <= 8; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'fuel-bar h-10 rounded-lg bg-granite-800 border border-granite-700/70 flex flex-col items-center justify-center font-mono font-bold text-xs text-gray-500 select-none';
+        bar.innerText = i;
+
+        if (i <= selectedFuelBars) {
+          if (selectedFuelBars <= 2) {
+            bar.className += ' active-low text-white';
+          } else if (selectedFuelBars <= 5) {
+            bar.className += ' active-mid text-black';
+          } else {
+            bar.className += ' active-high text-white';
+          }
+        }
+
+        bar.onclick = () => selectFuelBar(i);
+        container.appendChild(bar);
+      }
+
+      const percent = Math.round((selectedFuelBars / 8) * 100);
+      document.getElementById('selectedBarLabel').innerText = `${selectedFuelBars} / 8 Bars Left (${percent}%)`;
+    }
+
+    function selectFuelBar(barCount) {
+      selectedFuelBars = (selectedFuelBars === barCount) ? 0 : barCount;
+      renderFuelGaugeBars();
+    }
+
+    // TAB SWITCHING
+    function switchTab(tabId) {
+      document.querySelectorAll('.page-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-amber-glow', 'text-black', 'shadow');
+        btn.classList.add('text-gray-400');
+      });
+
+      document.getElementById(tabId).classList.add('active');
+      const activeBtn = document.getElementById(`btn-${tabId}`);
+      activeBtn.classList.add('bg-amber-glow', 'text-black', 'shadow');
+      activeBtn.classList.remove('text-gray-400');
+
+      if (tabId === 'tab-report') renderReport();
+    }
+
+    // SAVE FUELING ENTRY
+    function handleSaveFuelEntry(e) {
+      e.preventDefault();
+
+      const date = document.getElementById('inputDate').value.trim() || getTodayFormattedDDMMYYYY();
+      const odometer = parseFloat(document.getElementById('inputOdometer').value) || 0;
+      const fuelValue = parseFloat(document.getElementById('inputFuelValue').value) || 0;
+      const paidAmount = parseFloat(document.getElementById('inputPaidAmount').value) || 0;
+      const range = parseFloat(document.getElementById('inputRange').value) || 0;
+      const subsidySaved = Math.max(0, fuelValue - paidAmount);
+
+      const newEntry = {
+        id: Date.now(),
+        date,
+        odometer,
+        fuelValue,
+        paidAmount,
+        subsidySaved,
+        bars: selectedFuelBars,
+        range
+      };
+
+      fuelEntries.unshift(newEntry);
+      localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries));
+
+      renderLogsTable();
+      updateDashboardStats();
+
+      // Launch Thank You Modal
+      document.getElementById('popDate').innerText = date;
+      document.getElementById('popOdo').innerText = `${odometer.toLocaleString()} km`;
+      document.getElementById('popAmount').innerText = `RM ${paidAmount.toFixed(2)}`;
+      document.getElementById('popSavings').innerText = `RM ${subsidySaved.toFixed(2)}`;
+      document.getElementById('thankYouModal').classList.remove('hidden');
+
+      // Reset form fields
+      document.getElementById('inputOdometer').value = '';
+      document.getElementById('inputFuelValue').value = '';
+      document.getElementById('inputPaidAmount').value = '';
+      document.getElementById('inputRange').value = '';
+      selectedFuelBars = 0;
+      renderFuelGaugeBars();
+    }
+
+    function closeThankYouModal() {
+      document.getElementById('thankYouModal').classList.add('hidden');
+    }
+
+    // DASHBOARD STATS
+    function updateDashboardStats() {
+      let totalValue = 0;
+      let totalPaid = 0;
+      let totalSaved = 0;
+      let maxOdo = 0;
+
+      fuelEntries.forEach(entry => {
+        totalValue += entry.fuelValue;
+        totalPaid += entry.paidAmount;
+        totalSaved += entry.subsidySaved;
+        if (entry.odometer > maxOdo) maxOdo = entry.odometer;
+      });
+
+      document.getElementById('statTotalFuelValue').innerText = `RM ${totalValue.toFixed(2)}`;
+      document.getElementById('statTotalPaid').innerText = `RM ${totalPaid.toFixed(2)}`;
+      document.getElementById('statTotalSavings').innerText = `RM ${totalSaved.toFixed(2)}`;
+      document.getElementById('statMaxOdo').innerText = `${maxOdo.toLocaleString()} km`;
+      document.getElementById('logCountBadge').innerText = `${fuelEntries.length} Records`;
+    }
+
+    // LOGS TABLE
+    function renderLogsTable() {
+      const tbody = document.getElementById('logsTableBody');
+      const noLogsMsg = document.getElementById('noLogsMsg');
+      tbody.innerHTML = '';
+
+      if (fuelEntries.length === 0) {
+        noLogsMsg.classList.remove('hidden');
+        return;
+      }
+      noLogsMsg.classList.add('hidden');
+
+      fuelEntries.forEach(entry => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-granite-800/50 transition';
+        tr.innerHTML = `
+          <td class="py-2.5 px-2 text-white font-bold">${entry.date}</td>
+          <td class="py-2.5 px-2 text-neon-cyan">${entry.odometer.toLocaleString()} km</td>
+          <td class="py-2.5 px-2 text-amber-glow">RM ${entry.fuelValue.toFixed(2)}</td>
+          <td class="py-2.5 px-2 text-white">RM ${entry.paidAmount.toFixed(2)}</td>
+          <td class="py-2.5 px-2 text-neon-emerald">RM ${entry.subsidySaved.toFixed(2)}</td>
+          <td class="py-2.5 px-2 text-right">
+            <button onclick="deleteEntry(${entry.id})" class="text-red-400 hover:text-red-300 p-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function deleteEntry(id) {
+      if (confirm('Delete this fueling record?')) {
+        fuelEntries = fuelEntries.filter(e => e.id !== id);
+        localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries));
+        renderLogsTable();
+        updateDashboardStats();
+      }
+    }
+
+    // RENDER SUMMARY REPORT
+    function renderReport() {
+      const reportBody = document.getElementById('reportTableBody');
+      reportBody.innerHTML = '';
+
+      document.getElementById('reportGenDate').innerText = getTodayFormattedDDMMYYYY();
+
+      let totalValue = 0;
+      let totalPaid = 0;
+      let totalSaved = 0;
+
+      fuelEntries.forEach(item => {
+        totalValue += item.fuelValue;
+        totalPaid += item.paidAmount;
+        totalSaved += item.subsidySaved;
+
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-slate-900';
+        tr.innerHTML = `
+          <td class="py-1.5 px-1 text-white">${item.date}</td>
+          <td class="py-1.5 px-1 text-neon-cyan">${item.odometer}</td>
+          <td class="py-1.5 px-1 text-amber-glow">${item.fuelValue.toFixed(2)}</td>
+          <td class="py-1.5 px-1 text-white">${item.paidAmount.toFixed(2)}</td>
+          <td class="py-1.5 px-1 text-neon-emerald">${item.subsidySaved.toFixed(2)}</td>
+          <td class="py-1.5 px-1 text-gray-300">${item.bars}/8</td>
+        `;
+        reportBody.appendChild(tr);
+      });
+
+      document.getElementById('repFuelValue').innerText = `RM ${totalValue.toFixed(2)}`;
+      document.getElementById('repActualPaid').innerText = `RM ${totalPaid.toFixed(2)}`;
+      document.getElementById('repTotalSavings').innerText = `RM ${totalSaved.toFixed(2)}`;
+    }
+
+    // EXPORT PDF
+    function downloadReportPDF() {
+      const element = document.getElementById('pdfReportContainer');
+      const opt = {
+        margin:       0.3,
+        filename:     `Mr_Yugas_Fueling_Summary_APK8745.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, backgroundColor: '#020617' },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // EXPORT CSV
+    function downloadReportCSV() {
+      if (fuelEntries.length === 0) {
+        alert('No data available to export.');
+        return;
+      }
+
+      let csv = 'Mr Yuga\'s Fueling Summary - Perodua Bezza AV (APK 8745)\n';
+      csv += 'Date,Odometer (KM),Total Fuel Value (RM),Actual Paid (RM),Subsidy Saved (RM),Fuel Bars Left,Average Range (KM)\n';
+
+      fuelEntries.forEach(e => {
+        csv += `"${e.date}",${e.odometer},${e.fuelValue.toFixed(2)},${e.paidAmount.toFixed(2)},${e.subsidySaved.toFixed(2)},${e.bars},${e.range || ''}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', `Mr_Yuga_Fueling_Summary_APK8745.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
