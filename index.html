@@ -593,25 +593,23 @@
         </div>
       </div>
 
-      <!-- PRINTABLE DOCUMENT CONTAINER (CONSOLIDATED EXECUTIVE WHITE THEME) -->
-      <div id="pdfReportContainer" class="bg-white text-slate-900 p-4 rounded-xl border border-slate-300 space-y-3 shadow-xl">
+      <!-- PRINTABLE DOCUMENT CONTAINER (CONSOLIDATED EXECUTIVE WHITE THEME - ZERO CLIPPING) -->
+      <div id="pdfReportContainer" class="bg-white text-slate-900 p-4 rounded-xl border border-slate-300 space-y-3 shadow-xl max-w-full overflow-hidden">
         
-        <!-- Header -->
-        <div class="flex items-start justify-between border-b-2 border-slate-900 pb-2">
-          <div>
-            <h1 class="text-base font-black text-slate-900 tracking-tight uppercase">Mr Yuga's Vehicle Summary</h1>
-            <p class="text-[11px] text-slate-600 font-semibold mt-0.5">Vehicle: <strong class="text-slate-900">Perodua Bezza AV (Granite Grey)</strong></p>
-            <p class="text-[11px] text-slate-600 font-semibold">Plate Number: <strong class="text-amber-600 font-mono">APK 8745</strong></p>
+        <!-- Header with Logo Badge -->
+        <div class="flex items-center justify-between border-b-2 border-slate-900 pb-2">
+          <div class="flex items-center gap-3">
+            <img id="reportCarLogo" class="w-14 h-14 rounded-lg object-cover border border-slate-300 shadow-sm bg-slate-100 flex-shrink-0" src="" alt="Perodua Bezza AV">
+            <div>
+              <h1 class="text-base font-black text-slate-900 tracking-tight uppercase">Mr Yuga's Vehicle Summary</h1>
+              <p class="text-[11px] text-slate-600 font-semibold mt-0.5">Vehicle: <strong class="text-slate-900">Perodua Bezza AV (Granite Grey)</strong></p>
+              <p class="text-[11px] text-slate-600 font-semibold">Plate Number: <strong class="text-amber-600 font-mono">APK 8745</strong></p>
+            </div>
           </div>
           <div class="text-right">
             <span class="text-[9px] text-slate-500 font-bold uppercase tracking-widest block">Report Date</span>
             <span id="reportGenDate" class="text-xs font-mono font-bold text-slate-900">--/--/----</span>
           </div>
-        </div>
-
-        <!-- Compact Image Banner -->
-        <div class="w-full h-24 rounded-lg overflow-hidden border border-slate-300 bg-slate-100">
-          <img id="reportCarPhoto" class="w-full h-full object-cover" src="" alt="Perodua Bezza AV">
         </div>
 
         <!-- Key Financial Metrics -->
@@ -872,7 +870,7 @@
       document.getElementById('welcomeCarPhoto').src = savedWebPhoto;
       document.getElementById('headerCarAvatar').src = savedWebPhoto;
       document.getElementById('mainVehiclePhoto').src = savedWebPhoto;
-      document.getElementById('reportCarPhoto').src = savedWebPhoto;
+      document.getElementById('reportCarLogo').src = savedWebPhoto;
       document.getElementById('popupCarPhoto').src = savedThankYouPhoto;
       document.getElementById('previewWebPhoto').src = savedWebPhoto;
       document.getElementById('previewThankYouPhoto').src = savedThankYouPhoto;
@@ -1215,22 +1213,20 @@
       }
     }
 
-    // GUARANTEED MOBILE OFFSCREEN CLONE PDF EXPORT FIX
+    // RELIABLE PDF GENERATION LOGIC
     async function downloadReportPDFDirect() {
       const source = document.getElementById('pdfReportContainer');
       const clone = source.cloneNode(true);
 
-      // Force explicit dimensions on clone wrapper
       const wrapper = document.createElement('div');
       wrapper.style.position = 'absolute';
       wrapper.style.left = '-9999px';
       wrapper.style.top = '0';
-      wrapper.style.width = '794px'; // Standard A4 width in px at 96 DPI
+      wrapper.style.width = '750px';
       wrapper.style.backgroundColor = '#ffffff';
       wrapper.appendChild(clone);
       document.body.appendChild(wrapper);
 
-      // Wait for image load inside clone
       const images = clone.getElementsByTagName('img');
       const loadPromises = Array.from(images).map(img => {
         if (img.complete) return Promise.resolve();
@@ -1242,14 +1238,13 @@
         margin:       0.2,
         filename:     `Mr_Yuga_Unified_Vehicle_Report_APK8745.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 794 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 750 },
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
 
       try {
         await html2pdf().set(opt).from(clone).save();
       } catch (err) {
-        alert('Downloading PDF via browser print dialogue.');
         window.print();
       } finally {
         document.body.removeChild(wrapper);
