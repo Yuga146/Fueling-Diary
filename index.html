@@ -562,11 +562,11 @@
         </div>
       </div>
 
-      <!-- PREVIEW CONTAINER -->
+      <!-- PREVIEW CONTAINER WITH CAR LOGO BADGE -->
       <div class="bg-white text-slate-900 p-4 rounded-xl border border-slate-300 space-y-3 shadow-xl max-w-full overflow-hidden">
         <div class="flex items-center justify-between border-b-2 border-slate-900 pb-2">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-lg bg-slate-200 flex items-center justify-center font-bold text-xs text-slate-700">APK8745</div>
+            <img id="previewReportLogo" class="w-12 h-12 rounded-lg object-cover border border-slate-300 shadow-sm bg-slate-100 flex-shrink-0" src="" alt="Perodua Bezza AV">
             <div>
               <h1 class="text-base font-black text-slate-900 tracking-tight uppercase">Mr Yuga's Vehicle Summary</h1>
               <p class="text-[11px] text-slate-600 font-semibold mt-0.5">Vehicle: <strong class="text-slate-900">Perodua Bezza AV (Granite Grey)</strong></p>
@@ -647,7 +647,7 @@
       </div>
 
       <div class="space-y-2 bg-granite-900/90 p-3 rounded-2xl border border-granite-700/80">
-        <label class="text-xs font-bold text-white">Banner Image URL / File</label>
+        <label class="text-xs font-bold text-white">Banner & PDF Report Car Image URL / File</label>
         <input type="url" id="webPhotoUrl" placeholder="Direct Image URL" class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
         <input type="file" accept="image/*" onchange="handleFileUpload(event, 'web')" class="block w-full text-[11px] text-gray-400">
       </div>
@@ -746,6 +746,7 @@
       document.getElementById('welcomeCarPhoto').src = savedWebPhoto;
       document.getElementById('headerCarAvatar').src = savedWebPhoto;
       document.getElementById('mainVehiclePhoto').src = savedWebPhoto;
+      document.getElementById('previewReportLogo').src = savedWebPhoto;
       document.getElementById('popupCarPhoto').src = savedThankYouPhoto;
     }
 
@@ -981,7 +982,23 @@
       document.getElementById('repTotalServicePaid').innerText = `RM ${totalService.toFixed(2)}`;
     }
 
-    // DIRECT BLOB DOWNLOAD TO PREVENT CHROME BLANK PREVIEWS
+    // HELPER: CONVERT IMAGE TO BASE64 FOR PDF EMBEDDING
+    function getBase64Image(imgUrl, callback) {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        callback(canvas.toDataURL('image/jpeg'));
+      };
+      img.onerror = function() { callback(null); };
+      img.src = imgUrl;
+    }
+
+    // DIRECT BLOB DOWNLOAD WITH EMBEDDED CAR IMAGE LOGO
     function downloadReportPDFDirect() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -1000,78 +1017,96 @@
       const filteredService = serviceEntries.filter(s => scope === 'all' || isEntryInCurrentMonth(s.date));
       filteredService.forEach(s => totalService += (s.amount || 0));
 
-      doc.setFillColor(15, 23, 42);
-      doc.rect(0, 0, 595, 60, 'F');
-      doc.setTextColor(255, 183, 3);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(15);
-      doc.text("MR YUGA'S VEHICLE SUMMARY", 30, 32);
-      doc.setFontSize(8);
-      doc.setTextColor(203, 213, 225);
-      doc.text("PERODUA BEZZA AV (GRANITE GREY) • APK 8745", 30, 46);
-      doc.setTextColor(255, 255, 255);
-      doc.text(`DATE: ${dateStr}`, 470, 36);
+      const finishPDF = (imgData) => {
+        doc.setFillColor(15, 23, 42);
+        doc.rect(0, 0, 595, 65, 'F');
 
-      doc.setFillColor(248, 250, 252);
-      doc.rect(30, 75, 535, 40, 'F');
-      doc.setFontSize(8);
-      doc.setTextColor(100, 116, 139);
-      doc.text("TOTAL FUEL", 45, 90);
-      doc.text("ACTUAL PAID", 180, 90);
-      doc.text("SAVINGS", 310, 90);
-      doc.text("SERVICE", 445, 90);
+        // Embed Car Logo Badge if available
+        if (imgData) {
+          try {
+            doc.addImage(imgData, 'JPEG', 30, 12, 42, 42);
+          } catch(e) {}
+        }
 
-      doc.setFontSize(10);
-      doc.setTextColor(217, 119, 6);
-      doc.text(`RM ${totalValue.toFixed(2)}`, 45, 106);
-      doc.setTextColor(15, 23, 42);
-      doc.text(`RM ${totalPaid.toFixed(2)}`, 180, 106);
-      doc.setTextColor(5, 150, 105);
-      doc.text(`RM ${totalSaved.toFixed(2)}`, 310, 106);
-      doc.setTextColor(126, 34, 206);
-      doc.text(`RM ${totalService.toFixed(2)}`, 445, 106);
+        doc.setTextColor(255, 183, 3);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(15);
+        doc.text("MR YUGA'S VEHICLE SUMMARY", imgData ? 82 : 30, 32);
 
-      let currentY = 135;
-      doc.setFontSize(10);
-      doc.setTextColor(15, 23, 42);
-      doc.text("1. FUELING LOGS HISTORY", 30, currentY);
-      currentY += 12;
+        doc.setFontSize(8);
+        doc.setTextColor(203, 213, 225);
+        doc.text("PERODUA BEZZA AV (GRANITE GREY) • APK 8745", imgData ? 82 : 30, 48);
 
-      doc.setFillColor(226, 232, 240);
-      doc.rect(30, currentY, 535, 16, 'F');
-      doc.setFontSize(8);
-      doc.setTextColor(51, 65, 85);
-      doc.text("DATE", 35, currentY + 11);
-      doc.text("ODOMETER", 110, currentY + 11);
-      doc.text("FUEL VALUE", 210, currentY + 11);
-      doc.text("PAID", 310, currentY + 11);
-      doc.text("SAVED", 400, currentY + 11);
-      doc.text("BARS", 490, currentY + 11);
+        doc.setTextColor(255, 255, 255);
+        doc.text(`DATE: ${dateStr}`, 470, 38);
 
-      currentY += 16;
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(15, 23, 42);
+        doc.setFillColor(248, 250, 252);
+        doc.rect(30, 80, 535, 40, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text("TOTAL FUEL", 45, 95);
+        doc.text("ACTUAL PAID", 180, 95);
+        doc.text("SAVINGS", 310, 95);
+        doc.text("SERVICE", 445, 95);
 
-      filteredFuel.slice(0, 15).forEach(f => {
-        currentY += 14;
-        doc.text(String(f.date), 35, currentY);
-        doc.text(`${f.odometer.toLocaleString()} km`, 110, currentY);
-        doc.text(`RM ${f.fuelValue.toFixed(2)}`, 210, currentY);
-        doc.text(`RM ${f.paidAmount.toFixed(2)}`, 310, currentY);
-        doc.text(`RM ${f.subsidySaved.toFixed(2)}`, 400, currentY);
-        doc.text(`${f.bars}/8`, 490, currentY);
-      });
+        doc.setFontSize(10);
+        doc.setTextColor(217, 119, 6);
+        doc.text(`RM ${totalValue.toFixed(2)}`, 45, 111);
+        doc.setTextColor(15, 23, 42);
+        doc.text(`RM ${totalPaid.toFixed(2)}`, 180, 111);
+        doc.setTextColor(5, 150, 105);
+        doc.text(`RM ${totalSaved.toFixed(2)}`, 310, 111);
+        doc.setTextColor(126, 34, 206);
+        doc.text(`RM ${totalService.toFixed(2)}`, 445, 111);
 
-      // Force instant blob download bypassing Chrome viewer
-      const blob = doc.output('blob');
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Mr_Yuga_Unified_Vehicle_Report_APK8745.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+        let currentY = 145;
+        doc.setFontSize(10);
+        doc.setTextColor(15, 23, 42);
+        doc.text("1. FUELING LOGS HISTORY", 30, currentY);
+        currentY += 12;
+
+        doc.setFillColor(226, 232, 240);
+        doc.rect(30, currentY, 535, 16, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(51, 65, 85);
+        doc.text("DATE", 35, currentY + 11);
+        doc.text("ODOMETER", 110, currentY + 11);
+        doc.text("FUEL VALUE", 210, currentY + 11);
+        doc.text("PAID", 310, currentY + 11);
+        doc.text("SAVED", 400, currentY + 11);
+        doc.text("BARS", 490, currentY + 11);
+
+        currentY += 16;
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(15, 23, 42);
+
+        filteredFuel.slice(0, 15).forEach(f => {
+          currentY += 14;
+          doc.text(String(f.date), 35, currentY);
+          doc.text(`${f.odometer.toLocaleString()} km`, 110, currentY);
+          doc.text(`RM ${f.fuelValue.toFixed(2)}`, 210, currentY);
+          doc.text(`RM ${f.paidAmount.toFixed(2)}`, 310, currentY);
+          doc.text(`RM ${f.subsidySaved.toFixed(2)}`, 400, currentY);
+          doc.text(`${f.bars}/8`, 490, currentY);
+        });
+
+        // Trigger direct file download
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Mr_Yuga_Unified_Vehicle_Report_APK8745.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+
+      if (savedWebPhoto && savedWebPhoto.startsWith('data:image')) {
+        finishPDF(savedWebPhoto);
+      } else {
+        getBase64Image(savedWebPhoto, (base64) => { finishPDF(base64); });
+      }
     }
 
     function downloadReportCSV() {
