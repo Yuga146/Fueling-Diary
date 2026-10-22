@@ -241,7 +241,7 @@
         <i data-lucide="calendar-clock" class="w-4 h-4 text-amber-glow"></i>
         <span>Active Month Overview: <strong id="currentMonthLabel" class="text-amber-glow">October 2026</strong></span>
       </div>
-      <span id="syncStatusBadge" class="text-[10px] text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/30 font-bold">Cloud Sync Ready</span>
+      <span id="syncStatusBadge" class="text-[10px] text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/30 font-bold">Connecting Cloud...</span>
     </div>
 
     <!-- Dashboard KPI Cards (Fueling Mode View) -->
@@ -688,7 +688,7 @@
         </h3>
         <button type="button" onclick="closeCloudModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
-      <p class="text-xs text-gray-300">Your default cloud database is pre-configured. You can also paste a custom Firebase Realtime Database URL if desired.</p>
+      <p class="text-xs text-gray-300">Your cloud database is connected. You can replace or paste your custom Firebase Realtime Database URL below if needed.</p>
       <div>
         <label class="block text-xs font-bold text-neon-cyan uppercase mb-1">Firebase Database URL</label>
         <input type="text" id="firebaseDbUrlInput" placeholder="https://your-app-default-rtdb.firebaseio.com" class="input-field w-full px-3.5 py-2.5 rounded-xl font-mono text-xs">
@@ -752,7 +752,6 @@
     let dbRef = null;
     let selectedFuelBars = 0;
 
-    // Default Pre-configured Public Firebase Database for Instant Multi-Device Sync
     const DEFAULT_FB_URL = "https://mryuga-bezza-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     function getDirectImageUrl(url) {
@@ -770,7 +769,6 @@
 
     loadLocalStorageData();
 
-    // Initialize with pre-configured default cloud URL or custom user URL
     let savedDbUrl = localStorage.getItem('mrYuga_firebaseUrl') || DEFAULT_FB_URL;
     initFirebase(savedDbUrl);
 
@@ -812,11 +810,12 @@
             renderReport();
             updateVehiclePhotos();
           }
-          document.getElementById('syncStatusBadge').innerText = 'Cloud Sync Connected';
+          document.getElementById('syncStatusBadge').innerText = 'Cloud Live Connected';
           document.getElementById('syncStatusBadge').className = 'text-[10px] text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/30 font-bold';
         }, (error) => {
           console.error("Firebase sync error:", error);
-          document.getElementById('syncStatusBadge').innerText = 'Offline Local Mode';
+          document.getElementById('syncStatusBadge').innerText = 'Cloud Offline / Rule Locked';
+          document.getElementById('syncStatusBadge').className = 'text-[10px] text-red-400 bg-red-950/40 px-2 py-0.5 rounded border border-red-500/30 font-bold';
         });
       } catch(e) {
         console.error("Firebase init failed:", e);
@@ -830,7 +829,7 @@
         localStorage.setItem('mrYuga_firebaseUrl', url);
         initFirebase(url);
         closeCloudModal();
-        alert('Connected to custom database URL successfully!');
+        alert('Connected to database URL successfully!');
       }
     }
 
@@ -934,7 +933,7 @@
     }
     function closeImageModal() { document.getElementById('imageModal').classList.add('hidden'); }
 
-    function convertUrlToBase64AndSave(url, targetType) {
+    function convertUrlToBase64AndSave(url, targetType, callback) {
       const cleanUrl = getDirectImageUrl(url);
       const img = new Image();
       img.crossOrigin = "Anonymous";
@@ -944,20 +943,15 @@
         canvas.height = img.height;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0);
-        const dataURL = canvas.toDataURL("image/jpeg");
-        if (targetType === 'web') {
-          savedWebPhoto = dataURL;
-        } else {
-          savedThankYouPhoto = dataURL;
-        }
-        syncToCloud();
-        updateVehiclePhotos();
+        const dataURL = canvas.toDataURL("image/jpeg", 0.85);
+        if (targetType === 'web') savedWebPhoto = dataURL;
+        else savedThankYouPhoto = dataURL;
+        if (callback) callback();
       };
       img.onerror = function() {
         if (targetType === 'web') savedWebPhoto = cleanUrl;
         else savedThankYouPhoto = cleanUrl;
-        syncToCloud();
-        updateVehiclePhotos();
+        if (callback) callback();
       };
       img.src = cleanUrl;
     }
@@ -966,11 +960,28 @@
       const webUrl = document.getElementById('webPhotoUrl').value.trim();
       const thankYouUrl = document.getElementById('thankYouPhotoUrl').value.trim();
 
-      if (webUrl) convertUrlToBase64AndSave(webUrl, 'web');
-      if (thankYouUrl) convertUrlToBase64AndSave(thankYouUrl, 'thankyou');
+      let pending = 0;
+      const checkDone = () => {
+        pending--;
+        if (pending <= 0) {
+          syncToCloud();
+          updateVehiclePhotos();
+          closeImageModal();
+          alert('Photos saved and synced to cloud!');
+        }
+      };
 
-      closeImageModal();
-      alert('Photos saved and locked to memory!');
+      if (webUrl) {
+        pending++;
+        convertUrlToBase64AndSave(webUrl, 'web', checkDone);
+      }
+      if (thankYouUrl) {
+        pending++;
+        convertUrlToBase64AndSave(thankYouUrl, 'thankyou', checkDone);
+      }
+      if (pending === 0) {
+        closeImageModal();
+      }
     }
 
     function handleFileUpload(event, type) {
@@ -1048,7 +1059,6 @@
       renderLogsTable();
       updateDashboardStats();
 
-      // Show Fueling Thank You Popup
       document.getElementById('thankYouTitleText').innerText = 'Thank You for Fueling Me!';
       document.getElementById('thankYouModal').classList.remove('hidden');
     }
@@ -1071,7 +1081,6 @@
       renderServiceLogsTable();
       updateDashboardStats();
 
-      // Show Service Thank You Popup
       document.getElementById('thankYouTitleText').innerText = 'Thank You Servicing me up!';
       document.getElementById('thankYouModal').classList.remove('hidden');
     }
