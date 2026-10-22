@@ -8,8 +8,8 @@
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- html2pdf engine -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Native jsPDF Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
   <script>
@@ -593,13 +593,13 @@
         </div>
       </div>
 
-      <!-- PRINTABLE DOCUMENT CONTAINER (CONSOLIDATED EXECUTIVE WHITE THEME - ZERO CLIPPING) -->
+      <!-- PRINTABLE DOCUMENT CONTAINER (CONSOLIDATED EXECUTIVE WHITE THEME) -->
       <div id="pdfReportContainer" class="bg-white text-slate-900 p-4 rounded-xl border border-slate-300 space-y-3 shadow-xl max-w-full overflow-hidden">
         
         <!-- Header with Logo Badge -->
         <div class="flex items-center justify-between border-b-2 border-slate-900 pb-2">
           <div class="flex items-center gap-3">
-            <img id="reportCarLogo" class="w-14 h-14 rounded-lg object-cover border border-slate-300 shadow-sm bg-slate-100 flex-shrink-0" src="" alt="Perodua Bezza AV">
+            <img id="reportCarLogo" class="w-12 h-12 rounded-lg object-cover border border-slate-300 shadow-sm bg-slate-100 flex-shrink-0" src="" alt="Perodua Bezza AV">
             <div>
               <h1 class="text-base font-black text-slate-900 tracking-tight uppercase">Mr Yuga's Vehicle Summary</h1>
               <p class="text-[11px] text-slate-600 font-semibold mt-0.5">Vehicle: <strong class="text-slate-900">Perodua Bezza AV (Granite Grey)</strong></p>
@@ -1213,42 +1213,167 @@
       }
     }
 
-    // RELIABLE PDF GENERATION LOGIC
-    async function downloadReportPDFDirect() {
-      const source = document.getElementById('pdfReportContainer');
-      const clone = source.cloneNode(true);
+    // DIRECT NATIVE JSPDF GENERATION ENGINE (PREVENTS BLANK DOWNLOADS & SKIPS PRINT DIALOGUE)
+    function downloadReportPDFDirect() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
 
-      const wrapper = document.createElement('div');
-      wrapper.style.position = 'absolute';
-      wrapper.style.left = '-9999px';
-      wrapper.style.top = '0';
-      wrapper.style.width = '750px';
-      wrapper.style.backgroundColor = '#ffffff';
-      wrapper.appendChild(clone);
-      document.body.appendChild(wrapper);
+      const dateStr = getTodayFormattedDDMMYYYY();
+      const scope = document.getElementById('reportScopeSelect').value;
 
-      const images = clone.getElementsByTagName('img');
-      const loadPromises = Array.from(images).map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+      let totalValue = 0, totalPaid = 0, totalSaved = 0;
+      const filteredFuel = fuelEntries.filter(item => scope === 'all' || isEntryInCurrentMonth(item.date));
+      filteredFuel.forEach(i => {
+        totalValue += (i.fuelValue || 0);
+        totalPaid += (i.paidAmount || 0);
+        totalSaved += (i.subsidySaved || 0);
       });
-      await Promise.all(loadPromises);
 
-      const opt = {
-        margin:       0.2,
-        filename:     `Mr_Yuga_Unified_Vehicle_Report_APK8745.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 750 },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
+      let totalService = 0;
+      const filteredService = serviceEntries.filter(s => scope === 'all' || isEntryInCurrentMonth(s.date));
+      filteredService.forEach(s => totalService += (s.amount || 0));
 
-      try {
-        await html2pdf().set(opt).from(clone).save();
-      } catch (err) {
-        window.print();
-      } finally {
-        document.body.removeChild(wrapper);
+      // Header Banner
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, 595, 60, 'F');
+
+      doc.setTextColor(255, 183, 3);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text("MR YUGA'S VEHICLE SUMMARY", 30, 32);
+
+      doc.setFontSize(9);
+      doc.setTextColor(203, 213, 225);
+      doc.text("PERODUA BEZZA AV (GRANITE GREY) • APK 8745", 30, 48);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`REPORT DATE: ${dateStr}`, 470, 38);
+
+      // Financial KPI Summary Card
+      doc.setFillColor(248, 250, 252);
+      doc.rect(30, 75, 535, 45, 'F');
+      doc.setDrawColor(226, 232, 240);
+      doc.rect(30, 75, 535, 45, 'S');
+
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.setFont('helvetica', 'bold');
+
+      doc.text("TOTAL FUEL VALUE", 45, 90);
+      doc.text("ACTUAL PAID (FUEL)", 175, 90);
+      doc.text("SUBSIDY SAVED", 315, 90);
+      doc.text("SERVICE PAID", 450, 90);
+
+      doc.setFontSize(11);
+      doc.setTextColor(217, 119, 6);
+      doc.text(`RM ${totalValue.toFixed(2)}`, 45, 108);
+
+      doc.setTextColor(15, 23, 42);
+      doc.text(`RM ${totalPaid.toFixed(2)}`, 175, 108);
+
+      doc.setTextColor(5, 150, 105);
+      doc.text(`RM ${totalSaved.toFixed(2)}`, 315, 108);
+
+      doc.setTextColor(126, 34, 206);
+      doc.text(`RM ${totalService.toFixed(2)}`, 450, 108);
+
+      let currentY = 140;
+
+      // Section 1: Fuel Logs
+      doc.setFontSize(10);
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'bold');
+      doc.text("1. FUELING LOGS HISTORY", 30, currentY);
+      currentY += 12;
+
+      // Table Header
+      doc.setFillColor(226, 232, 240);
+      doc.rect(30, currentY, 535, 18, 'F');
+      doc.setFontSize(8);
+      doc.setTextColor(51, 65, 85);
+
+      doc.text("DATE", 35, currentY + 12);
+      doc.text("ODOMETER", 110, currentY + 12);
+      doc.text("FUEL VALUE", 210, currentY + 12);
+      doc.text("ACTUAL PAID", 300, currentY + 12);
+      doc.text("SUBSIDY SAVED", 390, currentY + 12);
+      doc.text("BARS", 490, currentY + 12);
+
+      currentY += 18;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(15, 23, 42);
+
+      if (filteredFuel.length === 0) {
+        currentY += 15;
+        doc.text("No fueling entries recorded.", 35, currentY);
+        currentY += 10;
+      } else {
+        filteredFuel.slice(0, 15).forEach(f => {
+          currentY += 14;
+          doc.text(String(f.date), 35, currentY);
+          doc.text(`${f.odometer.toLocaleString()} km`, 110, currentY);
+          doc.text(`RM ${f.fuelValue.toFixed(2)}`, 210, currentY);
+          doc.text(`RM ${f.paidAmount.toFixed(2)}`, 300, currentY);
+          doc.text(`RM ${f.subsidySaved.toFixed(2)}`, 390, currentY);
+          doc.text(`${f.bars}/8`, 490, currentY);
+
+          doc.setDrawColor(241, 245, 249);
+          doc.line(30, currentY + 3, 565, currentY + 3);
+        });
       }
+
+      currentY += 25;
+
+      // Section 2: Service Logs
+      doc.setFontSize(10);
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'bold');
+      doc.text("2. VEHICLE SERVICE MAINTENANCE HISTORY", 30, currentY);
+      currentY += 12;
+
+      doc.setFillColor(226, 232, 240);
+      doc.rect(30, currentY, 535, 18, 'F');
+      doc.setFontSize(8);
+      doc.setTextColor(51, 65, 85);
+
+      doc.text("SERVICE DATE", 35, currentY + 12);
+      doc.text("ODOMETER", 140, currentY + 12);
+      doc.text("AMOUNT PAID", 260, currentY + 12);
+      doc.text("SHOWROOM LOCATION", 380, currentY + 12);
+
+      currentY += 18;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(15, 23, 42);
+
+      if (filteredService.length === 0) {
+        currentY += 15;
+        doc.text("No service entries recorded.", 35, currentY);
+      } else {
+        filteredService.slice(0, 10).forEach(s => {
+          currentY += 14;
+          doc.text(String(s.date), 35, currentY);
+          doc.text(`${s.odometer.toLocaleString()} km`, 140, currentY);
+          doc.text(`RM ${s.amount.toFixed(2)}`, 260, currentY);
+          doc.text(String(s.location), 380, currentY);
+
+          doc.setDrawColor(241, 245, 249);
+          doc.line(30, currentY + 3, 565, currentY + 3);
+        });
+      }
+
+      // Footer Note
+      doc.setFontSize(7);
+      doc.setTextColor(148, 163, 184);
+      doc.text("Official Vehicle Logbook • Generated for Mr Yuga • Perodua Bezza AV (APK 8745)", 150, 810);
+
+      // Save Direct File
+      doc.save(`Mr_Yuga_Unified_Vehicle_Report_APK8745.pdf`);
     }
 
     function downloadReportCSV() {
