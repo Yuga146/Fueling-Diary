@@ -680,10 +680,10 @@
           <img id="previewWebPhoto" class="w-12 h-12 rounded-xl object-cover border border-granite-700 bg-granite-800" src="" alt="Web Photo">
           <div>
             <h4 class="text-xs font-bold text-white">1. Main Web & PDF Report Photo</h4>
-            <p class="text-[10px] text-gray-400">Upload file OR paste Google Drive / direct URL.</p>
+            <p class="text-[10px] text-gray-400">Paste Drive Link / Direct URL OR select file.</p>
           </div>
         </div>
-        <input type="url" id="webPhotoUrl" placeholder="Paste URL here..." class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
+        <input type="url" id="webPhotoUrl" placeholder="https://..." class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
         <input type="file" accept="image/*" onchange="handleFileUpload(event, 'web')" class="block w-full text-[11px] text-gray-400">
       </div>
 
@@ -693,10 +693,10 @@
           <img id="previewThankYouPhoto" class="w-12 h-12 rounded-full object-cover border border-amber-glow bg-granite-800" src="" alt="Thank You DP">
           <div>
             <h4 class="text-xs font-bold text-white">2. Thank You Display Picture (Round DP)</h4>
-            <p class="text-[10px] text-gray-400">Upload file OR paste Google Drive / direct URL.</p>
+            <p class="text-[10px] text-gray-400">Paste Drive Link / Direct URL OR select file.</p>
           </div>
         </div>
-        <input type="url" id="thankYouPhotoUrl" placeholder="Paste URL here..." class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
+        <input type="url" id="thankYouPhotoUrl" placeholder="https://..." class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
         <input type="file" accept="image/*" onchange="handleFileUpload(event, 'thankyou')" class="block w-full text-[11px] text-gray-400">
       </div>
 
@@ -714,21 +714,21 @@
     let fuelEntries = [], serviceEntries = [];
     let currentAppMode = 'fuel';
     let dbRef = null;
+    let selectedFuelBars = 0;
 
-    // Helper: Converts Google Drive viewing links into direct raw image URLs
-    function processImageLink(url) {
+    // Direct Google Drive image converter helper
+    function getDirectImageUrl(url) {
       if (!url) return DEFAULT_BEZZA_SVG;
-      if (url.includes('googleusercontent.com/d/') || url.includes('drive.google.com')) {
-        const matches = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-        if (matches && matches[1]) {
-          return `https://lh3.googleusercontent.com/d/${matches[1]}=s1000`;
-        }
+      if (url.startsWith('data:image')) return url;
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        return `https://lh3.googleusercontent.com/d/${match[1]}=s1000`;
       }
       return url;
     }
 
-    let savedWebPhoto = processImageLink(localStorage.getItem('mrYuga_webPhoto')) || DEFAULT_BEZZA_SVG;
-    let savedThankYouPhoto = processImageLink(localStorage.getItem('mrYuga_thankYouPhoto')) || DEFAULT_BEZZA_SVG;
+    let savedWebPhoto = localStorage.getItem('mrYuga_webPhoto') || DEFAULT_BEZZA_SVG;
+    let savedThankYouPhoto = localStorage.getItem('mrYuga_thankYouPhoto') || DEFAULT_BEZZA_SVG;
 
     loadLocalStorageData();
 
@@ -760,13 +760,12 @@
           if (val) {
             fuelEntries = val.fuelEntries || [];
             serviceEntries = val.serviceEntries || [];
-            
             if (val.webPhoto) {
-              savedWebPhoto = processImageLink(val.webPhoto);
+              savedWebPhoto = val.webPhoto;
               localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
             }
             if (val.thankYouPhoto) {
-              savedThankYouPhoto = processImageLink(val.thankYouPhoto);
+              savedThankYouPhoto = val.thankYouPhoto;
               localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto);
             }
             
@@ -809,9 +808,7 @@
           serviceEntries: serviceEntries,
           webPhoto: savedWebPhoto,
           thankYouPhoto: savedThankYouPhoto
-        }).catch(err => {
-          console.error("Cloud sync save error", err);
-        });
+        }).catch(err => console.error(err));
       }
     }
 
@@ -880,13 +877,16 @@
     function hideToast() { document.getElementById('toastBox').classList.add('hidden'); }
 
     function updateVehiclePhotos() {
-      document.getElementById('welcomeCarPhoto').src = savedWebPhoto;
-      document.getElementById('headerCarAvatar').src = savedWebPhoto;
-      document.getElementById('mainVehiclePhoto').src = savedWebPhoto;
-      document.getElementById('previewReportLogo').src = savedWebPhoto;
-      document.getElementById('popupCarPhoto').src = savedThankYouPhoto;
-      document.getElementById('previewWebPhoto').src = savedWebPhoto;
-      document.getElementById('previewThankYouPhoto').src = savedThankYouPhoto;
+      const src1 = getDirectImageUrl(savedWebPhoto);
+      const src2 = getDirectImageUrl(savedThankYouPhoto);
+
+      document.getElementById('welcomeCarPhoto').src = src1;
+      document.getElementById('headerCarAvatar').src = src1;
+      document.getElementById('mainVehiclePhoto').src = src1;
+      document.getElementById('previewReportLogo').src = src1;
+      document.getElementById('popupCarPhoto').src = src2;
+      document.getElementById('previewWebPhoto').src = src1;
+      document.getElementById('previewThankYouPhoto').src = src2;
     }
 
     function openImageModal() {
@@ -896,49 +896,54 @@
     }
     function closeImageModal() { document.getElementById('imageModal').classList.add('hidden'); }
 
+    function convertUrlToBase64AndSave(url, targetType) {
+      const cleanUrl = getDirectImageUrl(url);
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = function() {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL("image/jpeg");
+        if (targetType === 'web') {
+          savedWebPhoto = dataURL;
+        } else {
+          savedThankYouPhoto = dataURL;
+        }
+        syncToCloud();
+        updateVehiclePhotos();
+      };
+      img.onerror = function() {
+        if (targetType === 'web') savedWebPhoto = cleanUrl;
+        else savedThankYouPhoto = cleanUrl;
+        syncToCloud();
+        updateVehiclePhotos();
+      };
+      img.src = cleanUrl;
+    }
+
     function saveAllPhotos() {
       const webUrl = document.getElementById('webPhotoUrl').value.trim();
       const thankYouUrl = document.getElementById('thankYouPhotoUrl').value.trim();
 
-      if (webUrl) {
-        savedWebPhoto = processImageLink(webUrl);
-      }
-      if (thankYouUrl) {
-        savedThankYouPhoto = processImageLink(thankYouUrl);
-      }
-      
-      syncToCloud();
-      updateVehiclePhotos();
+      if (webUrl) convertUrlToBase64AndSave(webUrl, 'web');
+      if (thankYouUrl) convertUrlToBase64AndSave(thankYouUrl, 'thankyou');
+
       closeImageModal();
+      alert('Photos saved and locked to memory!');
     }
 
-    // Helper: Resizes high-res phone uploads to lightweight compressed base64
     function handleFileUpload(event, type) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const img = new Image();
-          img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const maxDim = 800;
-            let w = img.width, h = img.height;
-            if (w > maxDim || h > maxDim) {
-              if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
-              else { w = Math.round((w * maxDim) / h); h = maxDim; }
-            }
-            canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            const compressed = canvas.toDataURL('image/jpeg', 0.85);
-
-            if (type === 'web') { savedWebPhoto = compressed; }
-            else { savedThankYouPhoto = compressed; }
-
-            syncToCloud();
-            updateVehiclePhotos();
-          };
-          img.src = e.target.result;
+          if (type === 'web') savedWebPhoto = e.target.result;
+          else savedThankYouPhoto = e.target.result;
+          syncToCloud();
+          updateVehiclePhotos();
         };
         reader.readAsDataURL(file);
       }
@@ -1150,21 +1155,6 @@
       document.getElementById('repTotalServicePaid').innerText = `RM ${totalService.toFixed(2)}`;
     }
 
-    function getBase64Image(imgUrl, callback) {
-      const img = new Image();
-      img.crossOrigin = 'Anonymous';
-      img.onload = function() {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        callback(canvas.toDataURL('image/jpeg'));
-      };
-      img.onerror = function() { callback(null); };
-      img.src = imgUrl;
-    }
-
     function downloadReportPDFDirect() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -1267,7 +1257,7 @@
       if (savedWebPhoto && savedWebPhoto.startsWith('data:image')) {
         finishPDF(savedWebPhoto);
       } else {
-        getBase64Image(savedWebPhoto, (base64) => { finishPDF(base64); });
+        finishPDF(getDirectImageUrl(savedWebPhoto));
       }
     }
 
