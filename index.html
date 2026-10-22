@@ -674,10 +674,30 @@
         <button type="button" onclick="closeImageModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
 
+      <!-- PHOTO 1: WEB BANNER & PDF -->
       <div class="space-y-2 bg-granite-900/90 p-3 rounded-2xl border border-granite-700/80">
-        <label class="text-xs font-bold text-white">Banner & PDF Report Car Image URL / File</label>
+        <div class="flex items-center gap-3">
+          <img id="previewWebPhoto" class="w-12 h-12 rounded-xl object-cover border border-granite-700 bg-granite-800" src="" alt="Web Photo">
+          <div>
+            <h4 class="text-xs font-bold text-white">1. Main Web & PDF Report Photo</h4>
+            <p class="text-[10px] text-gray-400">Banner image used across top header & PDF exports.</p>
+          </div>
+        </div>
         <input type="url" id="webPhotoUrl" placeholder="Direct Image URL" class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
-        <input type="file" accept="image/*" onchange="handleFileUpload(event)" class="block w-full text-[11px] text-gray-400">
+        <input type="file" accept="image/*" onchange="handleFileUpload(event, 'web')" class="block w-full text-[11px] text-gray-400">
+      </div>
+
+      <!-- PHOTO 2: THANK YOU POPUP DP -->
+      <div class="space-y-2 bg-granite-900/90 p-3 rounded-2xl border border-granite-700/80">
+        <div class="flex items-center gap-3">
+          <img id="previewThankYouPhoto" class="w-12 h-12 rounded-full object-cover border border-amber-glow bg-granite-800" src="" alt="Thank You DP">
+          <div>
+            <h4 class="text-xs font-bold text-white">2. Thank You Display Picture (Round DP)</h4>
+            <p class="text-[10px] text-gray-400">Circular DP used for the pop-up thank you note.</p>
+          </div>
+        </div>
+        <input type="url" id="thankYouPhotoUrl" placeholder="Direct Image URL" class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
+        <input type="file" accept="image/*" onchange="handleFileUpload(event, 'thankyou')" class="block w-full text-[11px] text-gray-400">
       </div>
 
       <div class="flex gap-2 pt-1">
@@ -734,6 +754,10 @@
               savedWebPhoto = val.webPhoto;
               localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
             }
+            if (val.thankYouPhoto) {
+              savedThankYouPhoto = val.thankYouPhoto;
+              localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto);
+            }
             
             renderLogsTable();
             renderServiceLogsTable();
@@ -772,7 +796,8 @@
         dbRef.set({
           fuelEntries: fuelEntries,
           serviceEntries: serviceEntries,
-          webPhoto: savedWebPhoto
+          webPhoto: savedWebPhoto,
+          thankYouPhoto: savedThankYouPhoto
         }).catch(err => {
           alert('Cloud sync failed. Please verify your Firebase Database URL and rules.');
         });
@@ -849,29 +874,46 @@
       document.getElementById('mainVehiclePhoto').src = savedWebPhoto;
       document.getElementById('previewReportLogo').src = savedWebPhoto;
       document.getElementById('popupCarPhoto').src = savedThankYouPhoto;
+      document.getElementById('previewWebPhoto').src = savedWebPhoto;
+      document.getElementById('previewThankYouPhoto').src = savedThankYouPhoto;
     }
 
-    function openImageModal() { document.getElementById('imageModal').classList.remove('hidden'); }
+    function openImageModal() {
+      document.getElementById('webPhotoUrl').value = savedWebPhoto.startsWith('data:') ? '' : savedWebPhoto;
+      document.getElementById('thankYouPhotoUrl').value = savedThankYouPhoto.startsWith('data:') ? '' : savedThankYouPhoto;
+      document.getElementById('imageModal').classList.remove('hidden');
+    }
     function closeImageModal() { document.getElementById('imageModal').classList.add('hidden'); }
 
     function saveAllPhotos() {
       const webUrl = document.getElementById('webPhotoUrl').value.trim();
+      const thankYouUrl = document.getElementById('thankYouPhotoUrl').value.trim();
+
       if (webUrl) {
         savedWebPhoto = webUrl;
         localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
-        syncToCloud();
       }
+      if (thankYouUrl) {
+        savedThankYouPhoto = thankYouUrl;
+        localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto);
+      }
+      syncToCloud();
       updateVehiclePhotos();
       closeImageModal();
     }
 
-    function handleFileUpload(event) {
+    function handleFileUpload(event, type) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          savedWebPhoto = e.target.result;
-          localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
+          if (type === 'web') {
+            savedWebPhoto = e.target.result;
+            localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
+          } else {
+            savedThankYouPhoto = e.target.result;
+            localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto);
+          }
           syncToCloud();
           updateVehiclePhotos();
         };
@@ -1183,7 +1225,7 @@
           doc.text(String(f.date), 35, currentY);
           doc.text(`${f.odometer.toLocaleString()} km`, 110, currentY);
           doc.text(`RM ${f.fuelValue.toFixed(2)}`, 210, currentY);
-          doc.text(`RM ${f.paidAmount.toFixed(2)}`, 310, currentY);
+          doc.text(`RM ${f.paidAmount.toFixed(2)}`, 300, currentY);
           doc.text(`RM ${f.subsidySaved.toFixed(2)}`, 400, currentY);
           doc.text(`${f.bars}/8`, 490, currentY);
         });
