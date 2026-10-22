@@ -241,7 +241,7 @@
         <i data-lucide="calendar-clock" class="w-4 h-4 text-amber-glow"></i>
         <span>Active Month Overview: <strong id="currentMonthLabel" class="text-amber-glow">October 2026</strong></span>
       </div>
-      <span id="syncStatusBadge" class="text-[10px] text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/30 font-bold">Cloud Synced</span>
+      <span id="syncStatusBadge" class="text-[10px] text-amber-glow bg-amber-glow/10 px-2 py-0.5 rounded border border-amber-glow/30 font-bold">Offline Local Mode</span>
     </div>
 
     <!-- Dashboard KPI Cards (Fueling Mode View) -->
@@ -652,7 +652,7 @@
         </h3>
         <button type="button" onclick="closeCloudModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
-      <p class="text-xs text-gray-300">Enter your Firebase Realtime Database URL to sync entries across all your devices in real time.</p>
+      <p class="text-xs text-gray-300">Paste your Firebase Realtime Database URL below. Make sure your database rules allow read/write access.</p>
       <div>
         <label class="block text-xs font-bold text-neon-cyan uppercase mb-1">Firebase Database URL</label>
         <input type="text" id="firebaseDbUrlInput" placeholder="https://your-app-default-rtdb.firebaseio.com" class="input-field w-full px-3.5 py-2.5 rounded-xl font-mono text-xs">
@@ -695,17 +695,17 @@
     let currentAppMode = 'fuel';
     let dbRef = null;
 
-    // Initialize Firebase if URL stored
+    let savedWebPhoto = localStorage.getItem('mrYuga_webPhoto') || DEFAULT_BEZZA_SVG;
+    let savedThankYouPhoto = localStorage.getItem('mrYuga_thankYouPhoto') || DEFAULT_BEZZA_SVG;
+
+    // Initialize local storage first
+    loadLocalStorageData();
+
+    // Check Firebase URL
     let savedDbUrl = localStorage.getItem('mrYuga_firebaseUrl') || '';
     if (savedDbUrl) {
       initFirebase(savedDbUrl);
-    } else {
-      loadLocalStorageData();
     }
-
-    let selectedFuelBars = 0;
-    let savedWebPhoto = localStorage.getItem('mrYuga_webPhoto') || DEFAULT_BEZZA_SVG;
-    let savedThankYouPhoto = localStorage.getItem('mrYuga_thankYouPhoto') || DEFAULT_BEZZA_SVG;
 
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
@@ -730,7 +730,10 @@
           if (val) {
             fuelEntries = val.fuelEntries || [];
             serviceEntries = val.serviceEntries || [];
-            if (val.webPhoto) savedWebPhoto = val.webPhoto;
+            if (val.webPhoto) {
+              savedWebPhoto = val.webPhoto;
+              localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
+            }
             
             renderLogsTable();
             renderServiceLogsTable();
@@ -738,33 +741,41 @@
             renderReport();
             updateVehiclePhotos();
           }
-          document.getElementById('syncStatusBadge').innerText = 'Firebase Live Sync';
+          document.getElementById('syncStatusBadge').innerText = 'Firebase Live Sync Active';
+          document.getElementById('syncStatusBadge').className = 'text-[10px] text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/30 font-bold';
+        }, (error) => {
+          console.error("Firebase sync error:", error);
+          document.getElementById('syncStatusBadge').innerText = 'Sync Error - Check Rules';
+          document.getElementById('syncStatusBadge').className = 'text-[10px] text-red-400 bg-red-950/30 px-2 py-0.5 rounded border border-red-500/30 font-bold';
         });
       } catch(e) {
-        loadLocalStorageData();
+        console.error("Firebase init failed:", e);
       }
     }
 
     function saveFirebaseConfig() {
-      const url = document.getElementById('firebaseDbUrlInput').value.trim();
+      let url = document.getElementById('firebaseDbUrlInput').value.trim();
       if (url) {
+        if (url.endsWith('/')) url = url.slice(0, -1);
         localStorage.setItem('mrYuga_firebaseUrl', url);
         initFirebase(url);
         closeCloudModal();
-        alert('Connected to Firebase successfully!');
+        alert('Connected to Firebase! Data will now sync in real time.');
       }
     }
 
     function syncToCloud() {
+      localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries));
+      localStorage.setItem('mrYuga_serviceEntries', JSON.stringify(serviceEntries));
+
       if (dbRef) {
         dbRef.set({
           fuelEntries: fuelEntries,
           serviceEntries: serviceEntries,
           webPhoto: savedWebPhoto
+        }).catch(err => {
+          alert('Cloud sync failed. Please verify your Firebase Database URL and rules.');
         });
-      } else {
-        localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries));
-        localStorage.setItem('mrYuga_serviceEntries', JSON.stringify(serviceEntries));
       }
     }
 
@@ -1172,7 +1183,7 @@
           doc.text(String(f.date), 35, currentY);
           doc.text(`${f.odometer.toLocaleString()} km`, 110, currentY);
           doc.text(`RM ${f.fuelValue.toFixed(2)}`, 210, currentY);
-          doc.text(`RM ${f.paidAmount.toFixed(2)}`, 300, currentY);
+          doc.text(`RM ${f.paidAmount.toFixed(2)}`, 310, currentY);
           doc.text(`RM ${f.subsidySaved.toFixed(2)}`, 400, currentY);
           doc.text(`${f.bars}/8`, 490, currentY);
         });
