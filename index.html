@@ -133,6 +133,33 @@
     .animate-pop {
       animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      body * {
+        visibility: hidden;
+      }
+      #pdfReportContainer, #pdfReportContainer * {
+        visibility: visible;
+      }
+      #pdfReportContainer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen pb-12 antialiased">
@@ -168,7 +195,7 @@
   </div>
 
   <!-- Header Banner -->
-  <header class="sticky top-0 z-40 bg-granite-950/90 backdrop-blur-md border-b border-granite-700/60 px-4 py-3">
+  <header class="sticky top-0 z-40 bg-granite-950/90 backdrop-blur-md border-b border-granite-700/60 px-4 py-3 no-print">
     <div class="max-w-xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="relative">
@@ -190,10 +217,10 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <button type="button" onclick="openWelcomePortal()" class="p-2 rounded-xl bg-granite-800 border border-granite-600 text-amber-glow text-xs font-bold flex items-center gap-1" title="Switch Mode">
+        <button type="button" onclick="openWelcomePortal()" class="p-2 rounded-xl bg-granite-800 border border-granite-600 text-amber-glow text-xs font-bold flex items-center gap-1 cursor-pointer" title="Switch Mode">
           <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
         </button>
-        <button type="button" onclick="openImageModal()" class="p-2 rounded-xl bg-granite-800 border border-granite-600 text-gray-300 hover:text-white" title="Manage Photos">
+        <button type="button" onclick="openImageModal()" class="p-2 rounded-xl bg-granite-800 border border-granite-600 text-gray-300 hover:text-white cursor-pointer" title="Manage Photos">
           <i data-lucide="settings-2" class="w-4 h-4"></i>
         </button>
       </div>
@@ -201,19 +228,19 @@
   </header>
 
   <!-- Navigation Tabs -->
-  <div class="max-w-xl mx-auto px-4 mt-4">
+  <div class="max-w-xl mx-auto px-4 mt-4 no-print">
     <nav class="grid grid-cols-3 gap-1 bg-granite-800/80 p-1.5 rounded-2xl border border-granite-700/50">
-      <button type="button" onclick="switchTab('tab-entry')" id="btn-tab-entry" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-black bg-amber-glow shadow">
+      <button type="button" onclick="switchTab('tab-entry')" id="btn-tab-entry" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-black bg-amber-glow shadow cursor-pointer">
         <i id="tabEntryIcon" data-lucide="fuel" class="w-4 h-4"></i>
         <span id="tabEntryTitle">Entry</span>
       </button>
 
-      <button type="button" onclick="switchTab('tab-logs')" id="btn-tab-logs" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-gray-400 hover:text-white">
+      <button type="button" onclick="switchTab('tab-logs')" id="btn-tab-logs" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-gray-400 hover:text-white cursor-pointer">
         <i data-lucide="list-ordered" class="w-4 h-4"></i>
         <span id="tabLogsTitle">Logs</span>
       </button>
 
-      <button type="button" onclick="switchTab('tab-report')" id="btn-tab-report" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-gray-400 hover:text-white">
+      <button type="button" onclick="switchTab('tab-report')" id="btn-tab-report" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-gray-400 hover:text-white cursor-pointer">
         <i data-lucide="file-text" class="w-4 h-4"></i>
         <span>PDF Report</span>
       </button>
@@ -223,13 +250,13 @@
   <main class="max-w-xl mx-auto px-4 mt-4 space-y-5">
 
     <!-- Toast Alert Container -->
-    <div id="toastBox" class="hidden p-3 rounded-xl bg-red-950/90 border border-red-500 text-red-200 text-xs font-bold flex items-center justify-between">
+    <div id="toastBox" class="hidden p-3 rounded-xl bg-red-950/90 border border-red-500 text-red-200 text-xs font-bold flex items-center justify-between no-print">
       <span id="toastMsg">Please fill in required fields.</span>
       <button type="button" onclick="hideToast()"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
 
     <!-- Monthly Stats Indicator Banner -->
-    <div class="flex items-center justify-between bg-granite-900/80 p-3 rounded-xl border border-granite-700/70 text-xs">
+    <div class="flex items-center justify-between bg-granite-900/80 p-3 rounded-xl border border-granite-700/70 text-xs no-print">
       <div class="flex items-center gap-2 text-gray-300 font-semibold">
         <i data-lucide="calendar-clock" class="w-4 h-4 text-amber-glow"></i>
         <span>Active Month Overview: <strong id="currentMonthLabel" class="text-amber-glow">October 2026</strong></span>
@@ -238,7 +265,7 @@
     </div>
 
     <!-- Dashboard KPI Cards (Fueling Mode View) -->
-    <section id="kpiFuelSection" class="grid grid-cols-2 gap-3">
+    <section id="kpiFuelSection" class="grid grid-cols-2 gap-3 no-print">
       <div class="glass-card rounded-2xl p-3.5">
         <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Fuel Value</div>
         <div id="statTotalFuelValue" class="text-xl font-extrabold text-amber-glow font-mono">RM 0.00</div>
@@ -277,7 +304,7 @@
     </section>
 
     <!-- Dashboard KPI Cards (Service Mode View) -->
-    <section id="kpiServiceSection" class="grid grid-cols-2 gap-3 hidden">
+    <section id="kpiServiceSection" class="grid grid-cols-2 gap-3 hidden no-print">
       <div class="glass-card rounded-2xl p-3.5">
         <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Service Paid</div>
         <div id="statTotalServicePaid" class="text-xl font-extrabold text-neon-purple font-mono">RM 0.00</div>
@@ -298,7 +325,7 @@
     </section>
 
     <!-- LATEST ODOMETER CARD (ALL-TIME PERSISTENT) -->
-    <div class="glass-card rounded-2xl p-3.5 border-l-4 border-l-neon-cyan">
+    <div class="glass-card rounded-2xl p-3.5 border-l-4 border-l-neon-cyan no-print">
       <div class="flex items-center justify-between">
         <div>
           <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Latest Odometer Reading (All-Time)</div>
@@ -311,14 +338,14 @@
     </div>
 
     <!-- TAB 1: ENTRY FORMS (ISOLATED ACCESS) -->
-    <section id="tab-entry" class="page-tab active space-y-4">
+    <section id="tab-entry" class="page-tab active space-y-4 no-print">
 
       <!-- Web Showcase Photo Banner -->
       <div class="glass-card rounded-2xl p-3.5 flex flex-col items-center justify-center relative overflow-hidden border border-granite-700/80">
         <div class="w-full h-52 rounded-xl overflow-hidden bg-black relative border border-granite-700/60 flex items-center justify-center">
           <img id="mainVehiclePhoto" class="w-full h-full object-cover" src="" alt="Perodua Bezza AV Granite Grey">
           
-          <button type="button" onclick="openImageModal()" class="absolute top-2 right-2 px-3 py-1.5 rounded-lg bg-black/80 text-amber-glow font-bold text-xs flex items-center gap-1.5 border border-amber-glow/40 shadow">
+          <button type="button" onclick="openImageModal()" class="absolute top-2 right-2 px-3 py-1.5 rounded-lg bg-black/80 text-amber-glow font-bold text-xs flex items-center gap-1.5 border border-amber-glow/40 shadow cursor-pointer">
             <i data-lucide="camera" class="w-3.5 h-3.5"></i>
             <span>Change Photo</span>
           </button>
@@ -336,7 +363,7 @@
             </h2>
             <p class="text-xs text-gray-400 font-medium">Granite Grey Metallic • Main Web Photo</p>
           </div>
-          <button type="button" onclick="openImageModal()" class="text-xs text-amber-glow font-semibold hover:underline flex items-center gap-1">
+          <button type="button" onclick="openImageModal()" class="text-xs text-amber-glow font-semibold hover:underline flex items-center gap-1 cursor-pointer">
             <i data-lucide="image" class="w-3.5 h-3.5"></i>
             <span>Manage Photos</span>
           </button>
@@ -464,7 +491,7 @@
     </section>
 
     <!-- TAB 2: LOGS HISTORY (ISOLATED ACCESS) -->
-    <section id="tab-logs" class="page-tab space-y-4">
+    <section id="tab-logs" class="page-tab space-y-4 no-print">
       
       <!-- FUEL LOGS TABLE CONTAINER -->
       <div id="fuelLogsContainer" class="glass-card rounded-2xl p-4">
@@ -531,7 +558,7 @@
 
     <!-- TAB 3: CONSOLIDATED SUMMARY REPORT -->
     <section id="tab-report" class="page-tab space-y-4">
-      <div class="glass-card rounded-2xl p-4 space-y-4">
+      <div class="glass-card rounded-2xl p-4 space-y-4 no-print">
         <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
           <div>
             <h2 class="font-bold text-base text-white flex items-center gap-2">
@@ -554,6 +581,10 @@
           <button type="button" onclick="downloadReportPDFDirect()" class="flex-1 btn-glow py-2.5 rounded-xl text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow cursor-pointer">
             <i data-lucide="download" class="w-4 h-4"></i>
             <span>Download Unified PDF</span>
+          </button>
+
+          <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl bg-granite-800 hover:bg-granite-700 text-amber-glow font-bold text-xs flex items-center justify-center border border-granite-700 cursor-pointer" title="Print Document">
+            <i data-lucide="printer" class="w-4 h-4"></i>
           </button>
           
           <button type="button" onclick="downloadReportCSV()" class="px-4 py-2.5 rounded-xl bg-granite-800 hover:bg-granite-700 text-neon-cyan font-bold text-xs flex items-center justify-center border border-granite-700 cursor-pointer" title="Export CSV">
@@ -677,7 +708,7 @@
   </main>
 
   <!-- THANK YOU POPUP MODAL (ROUND DP) -->
-  <div id="thankYouModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+  <div id="thankYouModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden no-print">
     <div class="glass-card rounded-3xl p-6 max-w-sm w-full text-center space-y-4 border border-amber-glow/40 shadow-2xl animate-pop relative">
       <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden border-2 border-amber-glow shadow-xl bg-granite-800">
         <img id="popupCarPhoto" class="w-full h-full object-cover" src="" alt="Thank You DP">
@@ -703,7 +734,7 @@
   </div>
 
   <!-- DUAL PHOTO MANAGEMENT MODAL -->
-  <div id="imageModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+  <div id="imageModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden no-print">
     <div class="glass-card rounded-3xl p-5 max-w-md w-full space-y-5 border border-granite-700 shadow-2xl">
       <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
         <h3 class="font-bold text-sm text-white flex items-center gap-2">
@@ -749,7 +780,7 @@
 
     let memoryFuel = [], memoryService = [];
     let fuelEntries = [], serviceEntries = [];
-    let currentAppMode = 'fuel'; // 'fuel' or 'service'
+    let currentAppMode = 'fuel';
 
     try { fuelEntries = JSON.parse(localStorage.getItem('mrYuga_fuelEntries') || '[]'); } catch(e) { fuelEntries = memoryFuel; }
     try { serviceEntries = JSON.parse(localStorage.getItem('mrYuga_serviceEntries') || '[]'); } catch(e) { serviceEntries = memoryService; }
@@ -1184,16 +1215,45 @@
       }
     }
 
-    function downloadReportPDFDirect() {
-      const element = document.getElementById('pdfReportContainer');
+    // GUARANTEED MOBILE OFFSCREEN CLONE PDF EXPORT FIX
+    async function downloadReportPDFDirect() {
+      const source = document.getElementById('pdfReportContainer');
+      const clone = source.cloneNode(true);
+
+      // Force explicit dimensions on clone wrapper
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'absolute';
+      wrapper.style.left = '-9999px';
+      wrapper.style.top = '0';
+      wrapper.style.width = '794px'; // Standard A4 width in px at 96 DPI
+      wrapper.style.backgroundColor = '#ffffff';
+      wrapper.appendChild(clone);
+      document.body.appendChild(wrapper);
+
+      // Wait for image load inside clone
+      const images = clone.getElementsByTagName('img');
+      const loadPromises = Array.from(images).map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+      });
+      await Promise.all(loadPromises);
+
       const opt = {
-        margin:       0.15,
+        margin:       0.2,
         filename:     `Mr_Yuga_Unified_Vehicle_Report_APK8745.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 794 },
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
-      html2pdf().set(opt).from(element).save();
+
+      try {
+        await html2pdf().set(opt).from(clone).save();
+      } catch (err) {
+        alert('Downloading PDF via browser print dialogue.');
+        window.print();
+      } finally {
+        document.body.removeChild(wrapper);
+      }
     }
 
     function downloadReportCSV() {
