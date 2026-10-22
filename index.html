@@ -8,7 +8,7 @@
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Native jsPDF Library -->
+  <!-- Direct Native jsPDF Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
@@ -1145,8 +1145,8 @@
     function renderReport() {
       const reportBody = document.getElementById('reportTableBody');
       const serviceReportBody = document.getElementById('reportServiceTableBody');
-      reportBody.innerHTML = '';
-      serviceReportBody.innerHTML = '';
+      tbodyClean(reportBody);
+      tbodyClean(serviceReportBody);
 
       document.getElementById('reportGenDate').innerText = getTodayFormattedDDMMYYYY();
       const scope = document.getElementById('reportScopeSelect').value;
@@ -1212,6 +1212,8 @@
         chartPaidPercent.innerText = `0%`;
       }
     }
+
+    function tbodyClean(el) { if (el) el.innerHTML = ''; }
 
     // DIRECT NATIVE JSPDF GENERATION ENGINE (PREVENTS BLANK DOWNLOADS & SKIPS PRINT DIALOGUE)
     function downloadReportPDFDirect() {
