@@ -669,7 +669,7 @@
     <div class="glass-card rounded-3xl p-5 max-w-md w-full space-y-5 border border-granite-700 shadow-2xl">
       <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
         <h3 class="font-bold text-sm text-white flex items-center gap-2">
-          <i data-lucide="image" class="w-4 h-4 text-amber-glow"></i> Manage Vehicle Link URLs
+          <i data-lucide="image" class="w-4 h-4 text-amber-glow"></i> Manage Vehicle Photos
         </h3>
         <button type="button" onclick="closeImageModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
@@ -679,11 +679,12 @@
         <div class="flex items-center gap-3">
           <img id="previewWebPhoto" class="w-12 h-12 rounded-xl object-cover border border-granite-700 bg-granite-800" src="" alt="Web Photo">
           <div>
-            <h4 class="text-xs font-bold text-white">1. Main Web & PDF Report Photo Link</h4>
-            <p class="text-[10px] text-gray-400">Paste your direct image link here.</p>
+            <h4 class="text-xs font-bold text-white">1. Main Web & PDF Report Photo</h4>
+            <p class="text-[10px] text-gray-400">Upload file OR paste Google Drive / direct URL.</p>
           </div>
         </div>
-        <input type="url" id="webPhotoUrl" placeholder="https://..." class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
+        <input type="url" id="webPhotoUrl" placeholder="Paste URL here..." class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
+        <input type="file" accept="image/*" onchange="handleFileUpload(event, 'web')" class="block w-full text-[11px] text-gray-400">
       </div>
 
       <!-- PHOTO 2: THANK YOU POPUP DP -->
@@ -691,15 +692,16 @@
         <div class="flex items-center gap-3">
           <img id="previewThankYouPhoto" class="w-12 h-12 rounded-full object-cover border border-amber-glow bg-granite-800" src="" alt="Thank You DP">
           <div>
-            <h4 class="text-xs font-bold text-white">2. Thank You Display Picture Link</h4>
-            <p class="text-[10px] text-gray-400">Paste your circular DP image link here.</p>
+            <h4 class="text-xs font-bold text-white">2. Thank You Display Picture (Round DP)</h4>
+            <p class="text-[10px] text-gray-400">Upload file OR paste Google Drive / direct URL.</p>
           </div>
         </div>
-        <input type="url" id="thankYouPhotoUrl" placeholder="https://..." class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
+        <input type="url" id="thankYouPhotoUrl" placeholder="Paste URL here..." class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
+        <input type="file" accept="image/*" onchange="handleFileUpload(event, 'thankyou')" class="block w-full text-[11px] text-gray-400">
       </div>
 
       <div class="flex gap-2 pt-1">
-        <button type="button" onclick="saveAllPhotos()" class="btn-glow flex-1 py-2.5 rounded-xl text-black font-extrabold text-xs cursor-pointer">Save Links Permanently</button>
+        <button type="button" onclick="saveAllPhotos()" class="btn-glow flex-1 py-2.5 rounded-xl text-black font-extrabold text-xs cursor-pointer">Save Photos Permanently</button>
         <button type="button" onclick="closeImageModal()" class="px-4 py-2.5 rounded-xl bg-granite-800 text-gray-300 font-bold text-xs cursor-pointer">Cancel</button>
       </div>
     </div>
@@ -713,8 +715,20 @@
     let currentAppMode = 'fuel';
     let dbRef = null;
 
-    let savedWebPhoto = localStorage.getItem('mrYuga_webPhoto') || DEFAULT_BEZZA_SVG;
-    let savedThankYouPhoto = localStorage.getItem('mrYuga_thankYouPhoto') || DEFAULT_BEZZA_SVG;
+    // Helper: Converts Google Drive viewing links into direct raw image URLs
+    function processImageLink(url) {
+      if (!url) return DEFAULT_BEZZA_SVG;
+      if (url.includes('googleusercontent.com/d/') || url.includes('drive.google.com')) {
+        const matches = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+        if (matches && matches[1]) {
+          return `https://lh3.googleusercontent.com/d/${matches[1]}=s1000`;
+        }
+      }
+      return url;
+    }
+
+    let savedWebPhoto = processImageLink(localStorage.getItem('mrYuga_webPhoto')) || DEFAULT_BEZZA_SVG;
+    let savedThankYouPhoto = processImageLink(localStorage.getItem('mrYuga_thankYouPhoto')) || DEFAULT_BEZZA_SVG;
 
     loadLocalStorageData();
 
@@ -747,13 +761,12 @@
             fuelEntries = val.fuelEntries || [];
             serviceEntries = val.serviceEntries || [];
             
-            // Keep links synced locally too
             if (val.webPhoto) {
-              savedWebPhoto = val.webPhoto;
+              savedWebPhoto = processImageLink(val.webPhoto);
               localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
             }
             if (val.thankYouPhoto) {
-              savedThankYouPhoto = val.thankYouPhoto;
+              savedThankYouPhoto = processImageLink(val.thankYouPhoto);
               localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto);
             }
             
@@ -888,16 +901,47 @@
       const thankYouUrl = document.getElementById('thankYouPhotoUrl').value.trim();
 
       if (webUrl) {
-        savedWebPhoto = webUrl;
+        savedWebPhoto = processImageLink(webUrl);
       }
       if (thankYouUrl) {
-        savedThankYouPhoto = thankYouUrl;
+        savedThankYouPhoto = processImageLink(thankYouUrl);
       }
       
       syncToCloud();
       updateVehiclePhotos();
       closeImageModal();
-      alert('Image links saved permanently!');
+    }
+
+    // Helper: Resizes high-res phone uploads to lightweight compressed base64
+    function handleFileUpload(event, type) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const maxDim = 800;
+            let w = img.width, h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+              else { w = Math.round((w * maxDim) / h); h = maxDim; }
+            }
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const compressed = canvas.toDataURL('image/jpeg', 0.85);
+
+            if (type === 'web') { savedWebPhoto = compressed; }
+            else { savedThankYouPhoto = compressed; }
+
+            syncToCloud();
+            updateVehiclePhotos();
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
     }
 
     function renderFuelGaugeBars() {
