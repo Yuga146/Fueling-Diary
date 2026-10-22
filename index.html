@@ -133,33 +133,6 @@
     .animate-pop {
       animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
-
-    @media print {
-      body {
-        background: #ffffff !important;
-        color: #000000 !important;
-      }
-      body * {
-        visibility: hidden;
-      }
-      #pdfReportContainer, #pdfReportContainer * {
-        visibility: visible;
-      }
-      #pdfReportContainer {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background: #ffffff !important;
-        color: #000000 !important;
-        padding: 0 !important;
-        border: none !important;
-        box-shadow: none !important;
-      }
-      .no-print {
-        display: none !important;
-      }
-    }
   </style>
 </head>
 <body class="min-h-screen pb-12 antialiased">
@@ -195,7 +168,7 @@
   </div>
 
   <!-- Header Banner -->
-  <header class="sticky top-0 z-40 bg-granite-950/90 backdrop-blur-md border-b border-granite-700/60 px-4 py-3 no-print">
+  <header class="sticky top-0 z-40 bg-granite-950/90 backdrop-blur-md border-b border-granite-700/60 px-4 py-3">
     <div class="max-w-xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="relative">
@@ -228,7 +201,7 @@
   </header>
 
   <!-- Navigation Tabs -->
-  <div class="max-w-xl mx-auto px-4 mt-4 no-print">
+  <div class="max-w-xl mx-auto px-4 mt-4">
     <nav class="grid grid-cols-3 gap-1 bg-granite-800/80 p-1.5 rounded-2xl border border-granite-700/50">
       <button type="button" onclick="switchTab('tab-entry')" id="btn-tab-entry" class="nav-btn py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition text-black bg-amber-glow shadow cursor-pointer">
         <i id="tabEntryIcon" data-lucide="fuel" class="w-4 h-4"></i>
@@ -250,13 +223,13 @@
   <main class="max-w-xl mx-auto px-4 mt-4 space-y-5">
 
     <!-- Toast Alert Container -->
-    <div id="toastBox" class="hidden p-3 rounded-xl bg-red-950/90 border border-red-500 text-red-200 text-xs font-bold flex items-center justify-between no-print">
+    <div id="toastBox" class="hidden p-3 rounded-xl bg-red-950/90 border border-red-500 text-red-200 text-xs font-bold flex items-center justify-between">
       <span id="toastMsg">Please fill in required fields.</span>
       <button type="button" onclick="hideToast()"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
 
     <!-- Monthly Stats Indicator Banner -->
-    <div class="flex items-center justify-between bg-granite-900/80 p-3 rounded-xl border border-granite-700/70 text-xs no-print">
+    <div class="flex items-center justify-between bg-granite-900/80 p-3 rounded-xl border border-granite-700/70 text-xs">
       <div class="flex items-center gap-2 text-gray-300 font-semibold">
         <i data-lucide="calendar-clock" class="w-4 h-4 text-amber-glow"></i>
         <span>Active Month Overview: <strong id="currentMonthLabel" class="text-amber-glow">October 2026</strong></span>
@@ -265,7 +238,7 @@
     </div>
 
     <!-- Dashboard KPI Cards (Fueling Mode View) -->
-    <section id="kpiFuelSection" class="grid grid-cols-2 gap-3 no-print">
+    <section id="kpiFuelSection" class="grid grid-cols-2 gap-3">
       <div class="glass-card rounded-2xl p-3.5">
         <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Fuel Value</div>
         <div id="statTotalFuelValue" class="text-xl font-extrabold text-amber-glow font-mono">RM 0.00</div>
@@ -304,7 +277,7 @@
     </section>
 
     <!-- Dashboard KPI Cards (Service Mode View) -->
-    <section id="kpiServiceSection" class="grid grid-cols-2 gap-3 hidden no-print">
+    <section id="kpiServiceSection" class="grid grid-cols-2 gap-3 hidden">
       <div class="glass-card rounded-2xl p-3.5">
         <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Service Paid</div>
         <div id="statTotalServicePaid" class="text-xl font-extrabold text-neon-purple font-mono">RM 0.00</div>
@@ -325,7 +298,7 @@
     </section>
 
     <!-- LATEST ODOMETER CARD (ALL-TIME PERSISTENT) -->
-    <div class="glass-card rounded-2xl p-3.5 border-l-4 border-l-neon-cyan no-print">
+    <div class="glass-card rounded-2xl p-3.5 border-l-4 border-l-neon-cyan">
       <div class="flex items-center justify-between">
         <div>
           <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Latest Odometer Reading (All-Time)</div>
@@ -338,7 +311,7 @@
     </div>
 
     <!-- TAB 1: ENTRY FORMS (ISOLATED ACCESS) -->
-    <section id="tab-entry" class="page-tab active space-y-4 no-print">
+    <section id="tab-entry" class="page-tab active space-y-4">
 
       <!-- Web Showcase Photo Banner -->
       <div class="glass-card rounded-2xl p-3.5 flex flex-col items-center justify-center relative overflow-hidden border border-granite-700/80">
@@ -491,7 +464,7 @@
     </section>
 
     <!-- TAB 2: LOGS HISTORY (ISOLATED ACCESS) -->
-    <section id="tab-logs" class="page-tab space-y-4 no-print">
+    <section id="tab-logs" class="page-tab space-y-4">
       
       <!-- FUEL LOGS TABLE CONTAINER -->
       <div id="fuelLogsContainer" class="glass-card rounded-2xl p-4">
@@ -558,7 +531,7 @@
 
     <!-- TAB 3: CONSOLIDATED SUMMARY REPORT -->
     <section id="tab-report" class="page-tab space-y-4">
-      <div class="glass-card rounded-2xl p-4 space-y-4 no-print">
+      <div class="glass-card rounded-2xl p-4 space-y-4">
         <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
           <div>
             <h2 class="font-bold text-base text-white flex items-center gap-2">
@@ -582,10 +555,6 @@
             <i data-lucide="download" class="w-4 h-4"></i>
             <span>Download Unified PDF</span>
           </button>
-
-          <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl bg-granite-800 hover:bg-granite-700 text-amber-glow font-bold text-xs flex items-center justify-center border border-granite-700 cursor-pointer" title="Print Document">
-            <i data-lucide="printer" class="w-4 h-4"></i>
-          </button>
           
           <button type="button" onclick="downloadReportCSV()" class="px-4 py-2.5 rounded-xl bg-granite-800 hover:bg-granite-700 text-neon-cyan font-bold text-xs flex items-center justify-center border border-granite-700 cursor-pointer" title="Export CSV">
             <i data-lucide="file-output" class="w-4 h-4"></i>
@@ -593,17 +562,14 @@
         </div>
       </div>
 
-      <!-- PRINTABLE DOCUMENT CONTAINER (CONSOLIDATED EXECUTIVE WHITE THEME) -->
-      <div id="pdfReportContainer" class="bg-white text-slate-900 p-4 rounded-xl border border-slate-300 space-y-3 shadow-xl max-w-full overflow-hidden">
-        
-        <!-- Header with Logo Badge -->
+      <!-- PREVIEW CONTAINER -->
+      <div class="bg-white text-slate-900 p-4 rounded-xl border border-slate-300 space-y-3 shadow-xl max-w-full overflow-hidden">
         <div class="flex items-center justify-between border-b-2 border-slate-900 pb-2">
           <div class="flex items-center gap-3">
-            <img id="reportCarLogo" class="w-12 h-12 rounded-lg object-cover border border-slate-300 shadow-sm bg-slate-100 flex-shrink-0" src="" alt="Perodua Bezza AV">
+            <div class="w-12 h-12 rounded-lg bg-slate-200 flex items-center justify-center font-bold text-xs text-slate-700">APK8745</div>
             <div>
               <h1 class="text-base font-black text-slate-900 tracking-tight uppercase">Mr Yuga's Vehicle Summary</h1>
               <p class="text-[11px] text-slate-600 font-semibold mt-0.5">Vehicle: <strong class="text-slate-900">Perodua Bezza AV (Granite Grey)</strong></p>
-              <p class="text-[11px] text-slate-600 font-semibold">Plate Number: <strong class="text-amber-600 font-mono">APK 8745</strong></p>
             </div>
           </div>
           <div class="text-right">
@@ -612,14 +578,13 @@
           </div>
         </div>
 
-        <!-- Key Financial Metrics -->
         <div class="grid grid-cols-4 gap-1.5 text-center bg-slate-100 p-2.5 rounded-lg border border-slate-300">
           <div>
             <div class="text-[9px] text-slate-500 uppercase font-bold">Total Fuel Value</div>
             <div id="repFuelValue" class="text-xs font-black font-mono text-amber-600 mt-0.5">RM 0.00</div>
           </div>
           <div>
-            <div class="text-[9px] text-slate-500 uppercase font-bold">Actual Paid (Fuel)</div>
+            <div class="text-[9px] text-slate-500 uppercase font-bold">Actual Paid</div>
             <div id="repActualPaid" class="text-xs font-black font-mono text-slate-900 mt-0.5">RM 0.00</div>
           </div>
           <div>
@@ -627,38 +592,11 @@
             <div id="repTotalSavings" class="text-xs font-black font-mono text-emerald-600 mt-0.5">RM 0.00</div>
           </div>
           <div>
-            <div class="text-[9px] text-slate-500 uppercase font-bold">Total Service Paid</div>
+            <div class="text-[9px] text-slate-500 uppercase font-bold">Service Paid</div>
             <div id="repTotalServicePaid" class="text-xs font-black font-mono text-purple-700 mt-0.5">RM 0.00</div>
           </div>
         </div>
 
-        <!-- ROUND DONUT CHART FOR FUEL BREAKDOWN -->
-        <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-300 flex items-center justify-around">
-          <div class="relative w-20 h-20 flex items-center justify-center">
-            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-              <path class="text-slate-200" stroke-width="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path id="chartDonutSegment" class="text-amber-500" stroke-dasharray="0, 100" stroke-width="4" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-            </svg>
-            <div class="absolute text-center">
-              <span id="chartPaidPercent" class="text-[10px] font-black font-mono text-slate-900 block">0%</span>
-              <span class="text-[7px] text-slate-500 uppercase block font-bold">Paid</span>
-            </div>
-          </div>
-
-          <div class="space-y-1 text-left text-[10px] font-mono">
-            <div class="font-bold text-slate-800 uppercase tracking-wider text-[9px]">Fuel Breakdown Chart</div>
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-              <span class="text-slate-600">Actual Spent: <strong id="chartPaidAmt" class="text-slate-900">RM 0.00</strong></span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-              <span class="text-slate-600">Subsidy Saved: <strong id="chartSavedAmt" class="text-emerald-700">RM 0.00</strong></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Table 1: Fuel Logs -->
         <div>
           <div class="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-1">1. Fueling Logs History</div>
           <div class="overflow-x-auto">
@@ -677,54 +615,21 @@
             </table>
           </div>
         </div>
-
-        <!-- Table 2: Service Logs -->
-        <div>
-          <div class="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-1">2. Vehicle Service Maintenance History</div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-[10px] border-collapse">
-              <thead>
-                <tr class="border-b-2 border-slate-900 text-slate-700 font-mono uppercase">
-                  <th class="py-1 px-1">Service Date</th>
-                  <th class="py-1 px-1">Odometer</th>
-                  <th class="py-1 px-1">Amount Paid</th>
-                  <th class="py-1 px-1">Showroom Location</th>
-                </tr>
-              </thead>
-              <tbody id="reportServiceTableBody" class="divide-y divide-slate-200 font-mono text-slate-900"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="text-[8px] text-slate-500 text-center border-t border-slate-300 pt-1.5 font-mono">
-          Unified Vehicle Record • Mr Yuga • Perodua Bezza AV (APK 8745)
-        </div>
       </div>
-
     </section>
 
   </main>
 
-  <!-- THANK YOU POPUP MODAL (ROUND DP) -->
-  <div id="thankYouModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden no-print">
+  <!-- THANK YOU POPUP MODAL -->
+  <div id="thankYouModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
     <div class="glass-card rounded-3xl p-6 max-w-sm w-full text-center space-y-4 border border-amber-glow/40 shadow-2xl animate-pop relative">
       <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden border-2 border-amber-glow shadow-xl bg-granite-800">
         <img id="popupCarPhoto" class="w-full h-full object-cover" src="" alt="Thank You DP">
       </div>
-
       <div>
         <h3 class="text-lg font-extrabold text-white">Thank You for Fueling Me!</h3>
         <p class="text-xs text-amber-glow font-mono font-bold mt-1">Perodua Bezza AV • APK 8745</p>
-        <p class="text-xs text-gray-300 mt-2">Your entry has been saved successfully.</p>
       </div>
-
-      <div class="bg-granite-900/90 p-3 rounded-xl border border-granite-700/80 text-left text-xs font-mono space-y-1">
-        <div class="flex justify-between"><span class="text-gray-400">Date:</span><span id="popDate" class="text-white font-bold"></span></div>
-        <div class="flex justify-between"><span class="text-gray-400">Odometer:</span><span id="popOdo" class="text-neon-cyan font-bold"></span></div>
-        <div class="flex justify-between"><span class="text-gray-400">Paid Amount:</span><span id="popAmount" class="text-white font-bold"></span></div>
-        <div class="flex justify-between"><span class="text-gray-400">Subsidy Saved:</span><span id="popSavings" class="text-neon-emerald font-bold"></span></div>
-      </div>
-
       <button type="button" onclick="closeThankYouModal()" class="btn-glow w-full py-3 rounded-xl text-black font-extrabold text-xs shadow-lg cursor-pointer">
         Awesome, Drive Safe!
       </button>
@@ -732,7 +637,7 @@
   </div>
 
   <!-- DUAL PHOTO MANAGEMENT MODAL -->
-  <div id="imageModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden no-print">
+  <div id="imageModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
     <div class="glass-card rounded-3xl p-5 max-w-md w-full space-y-5 border border-granite-700 shadow-2xl">
       <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
         <h3 class="font-bold text-sm text-white flex items-center gap-2">
@@ -742,27 +647,9 @@
       </div>
 
       <div class="space-y-2 bg-granite-900/90 p-3 rounded-2xl border border-granite-700/80">
-        <div class="flex items-center gap-3">
-          <img id="previewWebPhoto" class="w-14 h-14 rounded-xl object-cover border border-granite-700 bg-granite-800" src="" alt="Web Photo">
-          <div>
-            <h4 class="text-xs font-bold text-white">1. Main Web & PDF Report Photo</h4>
-            <p class="text-[10px] text-gray-400">Banner image used across top header & PDF exports.</p>
-          </div>
-        </div>
-        <input type="url" id="webPhotoUrl" placeholder="Google Drive Link or Direct Image URL" class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
-        <input type="file" accept="image/*" onchange="handleFileUpload(event, 'web')" class="block w-full text-[11px] text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-granite-800 file:text-amber-glow cursor-pointer">
-      </div>
-
-      <div class="space-y-2 bg-granite-900/90 p-3 rounded-2xl border border-granite-700/80">
-        <div class="flex items-center gap-3">
-          <img id="previewThankYouPhoto" class="w-14 h-14 rounded-full object-cover border-2 border-amber-glow bg-granite-800" src="" alt="Thank You DP">
-          <div>
-            <h4 class="text-xs font-bold text-white">2. Thank You Display Picture (Round DP)</h4>
-            <p class="text-[10px] text-gray-400">Circular DP used for the pop-up thank you note.</p>
-          </div>
-        </div>
-        <input type="url" id="thankYouPhotoUrl" placeholder="Google Drive Link or Direct Image URL" class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
-        <input type="file" accept="image/*" onchange="handleFileUpload(event, 'thankyou')" class="block w-full text-[11px] text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-granite-800 file:text-amber-glow cursor-pointer">
+        <label class="text-xs font-bold text-white">Banner Image URL / File</label>
+        <input type="url" id="webPhotoUrl" placeholder="Direct Image URL" class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
+        <input type="file" accept="image/*" onchange="handleFileUpload(event, 'web')" class="block w-full text-[11px] text-gray-400">
       </div>
 
       <div class="flex gap-2 pt-1">
@@ -774,14 +661,13 @@
 
   <!-- APPLICATION JAVASCRIPT -->
   <script>
-    const DEFAULT_BEZZA_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450' width='100%' height='100%'><rect width='800' height='450' fill='%2311161d'/><path d='M0 320 Q 400 280 800 320 L 800 450 L 0 450 Z' fill='%231c232d'/><g fill='%234a4e51'><path d='M 140 250 Q 220 160 380 150 L 580 160 Q 680 180 720 250 Q 740 280 710 310 L 130 310 Q 100 280 140 250 Z'/></g><rect x='310' y='290' width='180' height='35' rx='6' fill='%23050505' stroke='%23ffb703' stroke-width='2'/><text x='400' y='313' font-family='monospace' font-weight='bold' font-size='18' fill='%23ffb703' text-anchor='middle'>APK 8745</text></svg>";
+    const DEFAULT_BEZZA_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450' width='100%' height='100%'><rect width='800' height='450' fill='%2311161d'/><path d='M0 320 Q 400 280 800 320 L 800 450 L 0 450 Z' fill='%231c232d'/><rect x='310' y='290' width='180' height='35' rx='6' fill='%23050505' stroke='%23ffb703' stroke-width='2'/><text x='400' y='313' font-family='monospace' font-weight='bold' font-size='18' fill='%23ffb703' text-anchor='middle'>APK 8745</text></svg>";
 
-    let memoryFuel = [], memoryService = [];
     let fuelEntries = [], serviceEntries = [];
     let currentAppMode = 'fuel';
 
-    try { fuelEntries = JSON.parse(localStorage.getItem('mrYuga_fuelEntries') || '[]'); } catch(e) { fuelEntries = memoryFuel; }
-    try { serviceEntries = JSON.parse(localStorage.getItem('mrYuga_serviceEntries') || '[]'); } catch(e) { serviceEntries = memoryService; }
+    try { fuelEntries = JSON.parse(localStorage.getItem('mrYuga_fuelEntries') || '[]'); } catch(e) { fuelEntries = []; }
+    try { serviceEntries = JSON.parse(localStorage.getItem('mrYuga_serviceEntries') || '[]'); } catch(e) { serviceEntries = []; }
 
     let selectedFuelBars = 0;
     let savedWebPhoto = DEFAULT_BEZZA_SVG;
@@ -805,10 +691,7 @@
 
     function getTodayFormattedDDMMYYYY() {
       const today = new Date();
-      const dd = String(today.getDate()).padStart(2, '0');
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const yyyy = today.getFullYear();
-      return `${dd}/${mm}/${yyyy}`;
+      return `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
     }
 
     function initCurrentDate() {
@@ -818,14 +701,11 @@
       if (d2 && !d2.value) d2.value = getTodayFormattedDDMMYYYY();
     }
 
-    function openWelcomePortal() {
-      document.getElementById('welcomePortalModal').classList.remove('hidden');
-    }
+    function openWelcomePortal() { document.getElementById('welcomePortalModal').classList.remove('hidden'); }
 
     function selectAppMode(mode) {
       currentAppMode = mode;
       document.getElementById('welcomePortalModal').classList.add('hidden');
-
       const badge = document.getElementById('activeModeBadge');
       const title = document.getElementById('tabEntryTitle');
       const icon = document.getElementById('tabEntryIcon');
@@ -835,7 +715,6 @@
         badge.className = 'bg-neon-emerald/20 text-neon-emerald font-bold text-[10px] px-1.5 rounded border border-neon-emerald/40 uppercase';
         title.innerText = 'Fuel Entry';
         icon.setAttribute('data-lucide', 'fuel');
-
         document.getElementById('kpiFuelSection').classList.remove('hidden');
         document.getElementById('kpiServiceSection').classList.add('hidden');
         document.getElementById('fuelFormContainer').classList.remove('hidden');
@@ -847,7 +726,6 @@
         badge.className = 'bg-purple-500/20 text-purple-300 font-bold text-[10px] px-1.5 rounded border border-purple-500/40 uppercase';
         title.innerText = 'Service Entry';
         icon.setAttribute('data-lucide', 'wrench');
-
         document.getElementById('kpiFuelSection').classList.add('hidden');
         document.getElementById('kpiServiceSection').classList.remove('hidden');
         document.getElementById('fuelFormContainer').classList.add('hidden');
@@ -859,45 +737,26 @@
     }
 
     function showToast(msg) {
-      const box = document.getElementById('toastBox');
       document.getElementById('toastMsg').innerText = msg;
-      box.classList.remove('hidden');
+      document.getElementById('toastBox').classList.remove('hidden');
     }
-
     function hideToast() { document.getElementById('toastBox').classList.add('hidden'); }
 
     function updateVehiclePhotos() {
       document.getElementById('welcomeCarPhoto').src = savedWebPhoto;
       document.getElementById('headerCarAvatar').src = savedWebPhoto;
       document.getElementById('mainVehiclePhoto').src = savedWebPhoto;
-      document.getElementById('reportCarLogo').src = savedWebPhoto;
       document.getElementById('popupCarPhoto').src = savedThankYouPhoto;
-      document.getElementById('previewWebPhoto').src = savedWebPhoto;
-      document.getElementById('previewThankYouPhoto').src = savedThankYouPhoto;
     }
 
     function openImageModal() { document.getElementById('imageModal').classList.remove('hidden'); }
     function closeImageModal() { document.getElementById('imageModal').classList.add('hidden'); }
 
-    function convertGoogleDriveUrl(url) {
-      if (url.includes('drive.google.com')) {
-        const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-        if (match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
-      }
-      return url;
-    }
-
     function saveAllPhotos() {
       const webUrl = document.getElementById('webPhotoUrl').value.trim();
-      const thankYouUrl = document.getElementById('thankYouPhotoUrl').value.trim();
-
       if (webUrl) {
-        savedWebPhoto = convertGoogleDriveUrl(webUrl);
+        savedWebPhoto = webUrl;
         try { localStorage.setItem('mrYuga_webPhoto', savedWebPhoto); } catch(e){}
-      }
-      if (thankYouUrl) {
-        savedThankYouPhoto = convertGoogleDriveUrl(thankYouUrl);
-        try { localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto); } catch(e){}
       }
       updateVehiclePhotos();
       closeImageModal();
@@ -908,13 +767,8 @@
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          if (type === 'web') {
-            savedWebPhoto = e.target.result;
-            try { localStorage.setItem('mrYuga_webPhoto', savedWebPhoto); } catch(err){}
-          } else {
-            savedThankYouPhoto = e.target.result;
-            try { localStorage.setItem('mrYuga_thankYouPhoto', savedThankYouPhoto); } catch(err){}
-          }
+          savedWebPhoto = e.target.result;
+          try { localStorage.setItem('mrYuga_webPhoto', savedWebPhoto); } catch(err){}
           updateVehiclePhotos();
         };
         reader.readAsDataURL(file);
@@ -928,22 +782,18 @@
         const bar = document.createElement('div');
         bar.className = 'fuel-bar h-10 rounded-lg bg-granite-800 border border-granite-700/70 flex flex-col items-center justify-center font-mono font-bold text-xs text-gray-500 select-none';
         bar.innerText = i;
-
         if (i <= selectedFuelBars) {
           if (selectedFuelBars <= 2) bar.className += ' active-low text-white';
           else if (selectedFuelBars <= 5) bar.className += ' active-mid text-black';
           else bar.className += ' active-high text-white';
         }
-        bar.onclick = () => selectFuelBar(i);
+        bar.onclick = () => {
+          selectedFuelBars = (selectedFuelBars === i) ? 0 : i;
+          renderFuelGaugeBars();
+        };
         container.appendChild(bar);
       }
-      const percent = Math.round((selectedFuelBars / 8) * 100);
-      document.getElementById('selectedBarLabel').innerText = `${selectedFuelBars} / 8 Bars Left (${percent}%)`;
-    }
-
-    function selectFuelBar(barCount) {
-      selectedFuelBars = (selectedFuelBars === barCount) ? 0 : barCount;
-      renderFuelGaugeBars();
+      document.getElementById('selectedBarLabel').innerText = `${selectedFuelBars} / 8 Bars Left (${Math.round((selectedFuelBars / 8) * 100)}%)`;
     }
 
     function switchTab(tabId) {
@@ -952,12 +802,10 @@
         btn.classList.remove('bg-amber-glow', 'text-black', 'shadow');
         btn.classList.add('text-gray-400');
       });
-
       document.getElementById(tabId).classList.add('active');
       const activeBtn = document.getElementById(`btn-${tabId}`);
       activeBtn.classList.add('bg-amber-glow', 'text-black', 'shadow');
       activeBtn.classList.remove('text-gray-400');
-
       if (tabId === 'tab-report') renderReport();
     }
 
@@ -965,116 +813,75 @@
       if(!dateStr) return false;
       const parts = dateStr.split('/');
       if(parts.length !== 3) return false;
-      const entryMonth = parseInt(parts[1], 10);
-      const entryYear = parseInt(parts[2], 10);
       const now = new Date();
-      return (entryMonth === (now.getMonth() + 1) && entryYear === now.getFullYear());
+      return (parseInt(parts[1], 10) === (now.getMonth() + 1) && parseInt(parts[2], 10) === now.getFullYear());
     }
 
     function executeSaveFuelEntry() {
       hideToast();
       const date = document.getElementById('inputDate').value.trim() || getTodayFormattedDDMMYYYY();
-      const odometerRaw = document.getElementById('inputOdometer').value;
-      const fuelValueRaw = document.getElementById('inputFuelValue').value;
-      const paidAmountRaw = document.getElementById('inputPaidAmount').value;
+      const odometer = parseFloat(document.getElementById('inputOdometer').value) || 0;
+      const fuelValue = parseFloat(document.getElementById('inputFuelValue').value) || 0;
+      const paidAmount = parseFloat(document.getElementById('inputPaidAmount').value) || 0;
 
-      if (!odometerRaw || !fuelValueRaw || !paidAmountRaw) {
+      if (!odometer || !fuelValue || !paidAmount) {
         showToast('Please enter Odometer, Total Fuel Value, and Actual Paid Amount.');
         return;
       }
 
-      const odometer = parseFloat(odometerRaw) || 0;
-      const fuelValue = parseFloat(fuelValueRaw) || 0;
-      const paidAmount = parseFloat(paidAmountRaw) || 0;
-      const range = parseFloat(document.getElementById('inputRange').value) || 0;
       const subsidySaved = Math.max(0, fuelValue - paidAmount);
-
-      const newEntry = { id: Date.now(), date, odometer, fuelValue, paidAmount, subsidySaved, bars: selectedFuelBars, range };
-      fuelEntries.unshift(newEntry);
-      try { localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries)); } catch(err) { memoryFuel = fuelEntries; }
+      fuelEntries.unshift({ id: Date.now(), date, odometer, fuelValue, paidAmount, subsidySaved, bars: selectedFuelBars });
+      try { localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries)); } catch(e){}
 
       renderLogsTable();
       updateDashboardStats();
-
-      document.getElementById('popDate').innerText = date;
-      document.getElementById('popOdo').innerText = `${odometer.toLocaleString()} km`;
-      document.getElementById('popAmount').innerText = `RM ${paidAmount.toFixed(2)}`;
-      document.getElementById('popSavings').innerText = `RM ${subsidySaved.toFixed(2)}`;
       document.getElementById('thankYouModal').classList.remove('hidden');
-
-      document.getElementById('inputOdometer').value = '';
-      document.getElementById('inputFuelValue').value = '';
-      document.getElementById('inputPaidAmount').value = '';
-      document.getElementById('inputRange').value = '';
-      selectedFuelBars = 0;
-      renderFuelGaugeBars();
     }
 
     function executeSaveServiceEntry() {
       hideToast();
       const date = document.getElementById('inputServiceDate').value.trim() || getTodayFormattedDDMMYYYY();
-      const odometerRaw = document.getElementById('inputServiceOdo').value;
-      const amountRaw = document.getElementById('inputServiceAmount').value;
+      const odometer = parseFloat(document.getElementById('inputServiceOdo').value) || 0;
+      const amount = parseFloat(document.getElementById('inputServiceAmount').value) || 0;
       const location = document.getElementById('inputServiceLocation').value.trim();
 
-      if (!odometerRaw || !amountRaw || !location) {
+      if (!odometer || !amount || !location) {
         showToast('Please enter Service Odometer, Amount Paid, and Location.');
         return;
       }
 
-      const odometer = parseFloat(odometerRaw) || 0;
-      const amount = parseFloat(amountRaw) || 0;
-
-      const newService = { id: Date.now(), date, odometer, amount, location };
-      serviceEntries.unshift(newService);
-      try { localStorage.setItem('mrYuga_serviceEntries', JSON.stringify(serviceEntries)); } catch(err) { memoryService = serviceEntries; }
+      serviceEntries.unshift({ id: Date.now(), date, odometer, amount, location });
+      try { localStorage.setItem('mrYuga_serviceEntries', JSON.stringify(serviceEntries)); } catch(e){}
 
       renderServiceLogsTable();
       updateDashboardStats();
-
       alert('Service record saved successfully!');
-      document.getElementById('inputServiceOdo').value = '';
-      document.getElementById('inputServiceAmount').value = '';
-      document.getElementById('inputServiceLocation').value = '';
     }
 
     function closeThankYouModal() { document.getElementById('thankYouModal').classList.add('hidden'); }
 
     function updateDashboardStats() {
-      let totalValue = 0, totalPaid = 0, totalSaved = 0, monthSessions = 0, maxOdo = 0;
-
+      let totalValue = 0, totalPaid = 0, totalSaved = 0, maxOdo = 0;
       fuelEntries.forEach(entry => {
         if (entry.odometer > maxOdo) maxOdo = entry.odometer;
         if (isEntryInCurrentMonth(entry.date)) {
           totalValue += (entry.fuelValue || 0);
           totalPaid += (entry.paidAmount || 0);
           totalSaved += (entry.subsidySaved || 0);
-          monthSessions++;
         }
       });
 
-      let totalServicePaid = 0, serviceSessions = 0;
+      let totalServicePaid = 0;
       serviceEntries.forEach(s => {
         if (s.odometer > maxOdo) maxOdo = s.odometer;
-        if (isEntryInCurrentMonth(s.date)) {
-          totalServicePaid += (s.amount || 0);
-          serviceSessions++;
-        }
+        if (isEntryInCurrentMonth(s.date)) totalServicePaid += (s.amount || 0);
       });
 
       document.getElementById('statTotalFuelValue').innerText = `RM ${totalValue.toFixed(2)}`;
       document.getElementById('statTotalPaid').innerText = `RM ${totalPaid.toFixed(2)}`;
       document.getElementById('statTotalSavings').innerText = `RM ${totalSaved.toFixed(2)}`;
-      document.getElementById('statFuelSessions').innerText = `${monthSessions} Session${monthSessions !== 1 ? 's' : ''}`;
       document.getElementById('statTotalServicePaid').innerText = `RM ${totalServicePaid.toFixed(2)}`;
-      document.getElementById('statServiceSessions').innerText = `${serviceSessions} Session${serviceSessions !== 1 ? 's' : ''}`;
       document.getElementById('statMaxOdo').innerText = `${maxOdo.toLocaleString()} km`;
-      document.getElementById('logCountBadge').innerText = `${fuelEntries.length} Records`;
-      document.getElementById('serviceLogCountBadge').innerText = `${serviceEntries.length} Records`;
-
-      const now = new Date();
-      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      document.getElementById('currentMonthLabel').innerText = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
     }
 
     function renderLogsTable() {
@@ -1086,7 +893,6 @@
 
       fuelEntries.forEach(entry => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-granite-800/50 transition';
         tr.innerHTML = `
           <td class="py-2.5 px-2 text-white font-bold">${entry.date}</td>
           <td class="py-2.5 px-2 text-neon-cyan">${entry.odometer.toLocaleString()} km</td>
@@ -1094,7 +900,7 @@
           <td class="py-2.5 px-2 text-white">RM ${entry.paidAmount.toFixed(2)}</td>
           <td class="py-2.5 px-2 text-neon-emerald">RM ${entry.subsidySaved.toFixed(2)}</td>
           <td class="py-2.5 px-2 text-right">
-            <button type="button" onclick="deleteEntry(${entry.id})" class="text-red-400 hover:text-red-300 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            <button type="button" onclick="deleteEntry(${entry.id})" class="text-red-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1111,14 +917,13 @@
 
       serviceEntries.forEach(entry => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-granite-800/50 transition';
         tr.innerHTML = `
           <td class="py-2.5 px-2 text-white font-bold">${entry.date}</td>
           <td class="py-2.5 px-2 text-neon-cyan">${entry.odometer.toLocaleString()} km</td>
           <td class="py-2.5 px-2 text-neon-purple font-bold">RM ${entry.amount.toFixed(2)}</td>
           <td class="py-2.5 px-2 text-amber-glow">${entry.location}</td>
           <td class="py-2.5 px-2 text-right">
-            <button type="button" onclick="deleteServiceEntry(${entry.id})" class="text-red-400 hover:text-red-300 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            <button type="button" onclick="deleteServiceEntry(${entry.id})" class="text-red-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1127,27 +932,20 @@
     }
 
     function deleteEntry(id) {
-      if (confirm('Delete this fueling record?')) {
-        fuelEntries = fuelEntries.filter(e => e.id !== id);
-        try { localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries)); } catch(e){}
-        renderLogsTable(); updateDashboardStats();
-      }
+      fuelEntries = fuelEntries.filter(e => e.id !== id);
+      try { localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries)); } catch(e){}
+      renderLogsTable(); updateDashboardStats();
     }
 
     function deleteServiceEntry(id) {
-      if (confirm('Delete this service record?')) {
-        serviceEntries = serviceEntries.filter(e => e.id !== id);
-        try { localStorage.setItem('mrYuga_serviceEntries', JSON.stringify(serviceEntries)); } catch(e){}
-        renderServiceLogsTable(); updateDashboardStats();
-      }
+      serviceEntries = serviceEntries.filter(e => e.id !== id);
+      try { localStorage.setItem('mrYuga_serviceEntries', JSON.stringify(serviceEntries)); } catch(e){}
+      renderServiceLogsTable(); updateDashboardStats();
     }
 
     function renderReport() {
       const reportBody = document.getElementById('reportTableBody');
-      const serviceReportBody = document.getElementById('reportServiceTableBody');
-      tbodyClean(reportBody);
-      tbodyClean(serviceReportBody);
-
+      reportBody.innerHTML = '';
       document.getElementById('reportGenDate').innerText = getTodayFormattedDDMMYYYY();
       const scope = document.getElementById('reportScopeSelect').value;
 
@@ -1174,52 +972,19 @@
 
       let totalService = 0;
       serviceEntries.forEach(s => {
-        if (scope === 'all' || isEntryInCurrentMonth(s.date)) {
-          totalService += (s.amount || 0);
-
-          const tr = document.createElement('tr');
-          tr.className = 'border-b border-slate-200';
-          tr.innerHTML = `
-            <td class="py-1 px-1 font-bold">${s.date}</td>
-            <td class="py-1 px-1">${s.odometer.toLocaleString()} km</td>
-            <td class="py-1 px-1 font-bold text-purple-800">RM ${s.amount.toFixed(2)}</td>
-            <td class="py-1 px-1 font-bold text-amber-700">${s.location}</td>
-          `;
-          serviceReportBody.appendChild(tr);
-        }
+        if (scope === 'all' || isEntryInCurrentMonth(s.date)) totalService += (s.amount || 0);
       });
 
       document.getElementById('repFuelValue').innerText = `RM ${totalValue.toFixed(2)}`;
       document.getElementById('repActualPaid').innerText = `RM ${totalPaid.toFixed(2)}`;
       document.getElementById('repTotalSavings').innerText = `RM ${totalSaved.toFixed(2)}`;
       document.getElementById('repTotalServicePaid').innerText = `RM ${totalService.toFixed(2)}`;
-
-      // DONUT CHART RENDER LOGIC
-      const chartSeg = document.getElementById('chartDonutSegment');
-      const chartPaidPercent = document.getElementById('chartPaidPercent');
-      const chartPaidAmt = document.getElementById('chartPaidAmt');
-      const chartSavedAmt = document.getElementById('chartSavedAmt');
-
-      chartPaidAmt.innerText = `RM ${totalPaid.toFixed(2)}`;
-      chartSavedAmt.innerText = `RM ${totalSaved.toFixed(2)}`;
-
-      if (totalValue > 0) {
-        const paidRatio = Math.round((totalPaid / totalValue) * 100);
-        chartSeg.setAttribute('stroke-dasharray', `${paidRatio}, 100`);
-        chartPaidPercent.innerText = `${paidRatio}%`;
-      } else {
-        chartSeg.setAttribute('stroke-dasharray', `0, 100`);
-        chartPaidPercent.innerText = `0%`;
-      }
     }
 
-    function tbodyClean(el) { if (el) el.innerHTML = ''; }
-
-    // DIRECT NATIVE JSPDF GENERATION ENGINE (PREVENTS BLANK DOWNLOADS & SKIPS PRINT DIALOGUE)
+    // DIRECT BLOB DOWNLOAD TO PREVENT CHROME BLANK PREVIEWS
     function downloadReportPDFDirect() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-
       const dateStr = getTodayFormattedDDMMYYYY();
       const scope = document.getElementById('reportScopeSelect').value;
 
@@ -1235,147 +1000,78 @@
       const filteredService = serviceEntries.filter(s => scope === 'all' || isEntryInCurrentMonth(s.date));
       filteredService.forEach(s => totalService += (s.amount || 0));
 
-      // Header Banner
       doc.setFillColor(15, 23, 42);
       doc.rect(0, 0, 595, 60, 'F');
-
       doc.setTextColor(255, 183, 3);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(16);
+      doc.setFontSize(15);
       doc.text("MR YUGA'S VEHICLE SUMMARY", 30, 32);
-
-      doc.setFontSize(9);
+      doc.setFontSize(8);
       doc.setTextColor(203, 213, 225);
-      doc.text("PERODUA BEZZA AV (GRANITE GREY) • APK 8745", 30, 48);
-
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
+      doc.text("PERODUA BEZZA AV (GRANITE GREY) • APK 8745", 30, 46);
       doc.setTextColor(255, 255, 255);
-      doc.text(`REPORT DATE: ${dateStr}`, 470, 38);
+      doc.text(`DATE: ${dateStr}`, 470, 36);
 
-      // Financial KPI Summary Card
       doc.setFillColor(248, 250, 252);
-      doc.rect(30, 75, 535, 45, 'F');
-      doc.setDrawColor(226, 232, 240);
-      doc.rect(30, 75, 535, 45, 'S');
-
+      doc.rect(30, 75, 535, 40, 'F');
       doc.setFontSize(8);
       doc.setTextColor(100, 116, 139);
-      doc.setFont('helvetica', 'bold');
+      doc.text("TOTAL FUEL", 45, 90);
+      doc.text("ACTUAL PAID", 180, 90);
+      doc.text("SAVINGS", 310, 90);
+      doc.text("SERVICE", 445, 90);
 
-      doc.text("TOTAL FUEL VALUE", 45, 90);
-      doc.text("ACTUAL PAID (FUEL)", 175, 90);
-      doc.text("SUBSIDY SAVED", 315, 90);
-      doc.text("SERVICE PAID", 450, 90);
-
-      doc.setFontSize(11);
+      doc.setFontSize(10);
       doc.setTextColor(217, 119, 6);
-      doc.text(`RM ${totalValue.toFixed(2)}`, 45, 108);
-
+      doc.text(`RM ${totalValue.toFixed(2)}`, 45, 106);
       doc.setTextColor(15, 23, 42);
-      doc.text(`RM ${totalPaid.toFixed(2)}`, 175, 108);
-
+      doc.text(`RM ${totalPaid.toFixed(2)}`, 180, 106);
       doc.setTextColor(5, 150, 105);
-      doc.text(`RM ${totalSaved.toFixed(2)}`, 315, 108);
-
+      doc.text(`RM ${totalSaved.toFixed(2)}`, 310, 106);
       doc.setTextColor(126, 34, 206);
-      doc.text(`RM ${totalService.toFixed(2)}`, 450, 108);
+      doc.text(`RM ${totalService.toFixed(2)}`, 445, 106);
 
-      let currentY = 140;
-
-      // Section 1: Fuel Logs
+      let currentY = 135;
       doc.setFontSize(10);
       doc.setTextColor(15, 23, 42);
-      doc.setFont('helvetica', 'bold');
       doc.text("1. FUELING LOGS HISTORY", 30, currentY);
       currentY += 12;
 
-      // Table Header
       doc.setFillColor(226, 232, 240);
-      doc.rect(30, currentY, 535, 18, 'F');
+      doc.rect(30, currentY, 535, 16, 'F');
       doc.setFontSize(8);
       doc.setTextColor(51, 65, 85);
+      doc.text("DATE", 35, currentY + 11);
+      doc.text("ODOMETER", 110, currentY + 11);
+      doc.text("FUEL VALUE", 210, currentY + 11);
+      doc.text("PAID", 310, currentY + 11);
+      doc.text("SAVED", 400, currentY + 11);
+      doc.text("BARS", 490, currentY + 11);
 
-      doc.text("DATE", 35, currentY + 12);
-      doc.text("ODOMETER", 110, currentY + 12);
-      doc.text("FUEL VALUE", 210, currentY + 12);
-      doc.text("ACTUAL PAID", 300, currentY + 12);
-      doc.text("SUBSIDY SAVED", 390, currentY + 12);
-      doc.text("BARS", 490, currentY + 12);
-
-      currentY += 18;
-
+      currentY += 16;
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8);
       doc.setTextColor(15, 23, 42);
 
-      if (filteredFuel.length === 0) {
-        currentY += 15;
-        doc.text("No fueling entries recorded.", 35, currentY);
-        currentY += 10;
-      } else {
-        filteredFuel.slice(0, 15).forEach(f => {
-          currentY += 14;
-          doc.text(String(f.date), 35, currentY);
-          doc.text(`${f.odometer.toLocaleString()} km`, 110, currentY);
-          doc.text(`RM ${f.fuelValue.toFixed(2)}`, 210, currentY);
-          doc.text(`RM ${f.paidAmount.toFixed(2)}`, 300, currentY);
-          doc.text(`RM ${f.subsidySaved.toFixed(2)}`, 390, currentY);
-          doc.text(`${f.bars}/8`, 490, currentY);
+      filteredFuel.slice(0, 15).forEach(f => {
+        currentY += 14;
+        doc.text(String(f.date), 35, currentY);
+        doc.text(`${f.odometer.toLocaleString()} km`, 110, currentY);
+        doc.text(`RM ${f.fuelValue.toFixed(2)}`, 210, currentY);
+        doc.text(`RM ${f.paidAmount.toFixed(2)}`, 310, currentY);
+        doc.text(`RM ${f.subsidySaved.toFixed(2)}`, 400, currentY);
+        doc.text(`${f.bars}/8`, 490, currentY);
+      });
 
-          doc.setDrawColor(241, 245, 249);
-          doc.line(30, currentY + 3, 565, currentY + 3);
-        });
-      }
-
-      currentY += 25;
-
-      // Section 2: Service Logs
-      doc.setFontSize(10);
-      doc.setTextColor(15, 23, 42);
-      doc.setFont('helvetica', 'bold');
-      doc.text("2. VEHICLE SERVICE MAINTENANCE HISTORY", 30, currentY);
-      currentY += 12;
-
-      doc.setFillColor(226, 232, 240);
-      doc.rect(30, currentY, 535, 18, 'F');
-      doc.setFontSize(8);
-      doc.setTextColor(51, 65, 85);
-
-      doc.text("SERVICE DATE", 35, currentY + 12);
-      doc.text("ODOMETER", 140, currentY + 12);
-      doc.text("AMOUNT PAID", 260, currentY + 12);
-      doc.text("SHOWROOM LOCATION", 380, currentY + 12);
-
-      currentY += 18;
-
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8);
-      doc.setTextColor(15, 23, 42);
-
-      if (filteredService.length === 0) {
-        currentY += 15;
-        doc.text("No service entries recorded.", 35, currentY);
-      } else {
-        filteredService.slice(0, 10).forEach(s => {
-          currentY += 14;
-          doc.text(String(s.date), 35, currentY);
-          doc.text(`${s.odometer.toLocaleString()} km`, 140, currentY);
-          doc.text(`RM ${s.amount.toFixed(2)}`, 260, currentY);
-          doc.text(String(s.location), 380, currentY);
-
-          doc.setDrawColor(241, 245, 249);
-          doc.line(30, currentY + 3, 565, currentY + 3);
-        });
-      }
-
-      // Footer Note
-      doc.setFontSize(7);
-      doc.setTextColor(148, 163, 184);
-      doc.text("Official Vehicle Logbook • Generated for Mr Yuga • Perodua Bezza AV (APK 8745)", 150, 810);
-
-      // Save Direct File
-      doc.save(`Mr_Yuga_Unified_Vehicle_Report_APK8745.pdf`);
+      // Force instant blob download bypassing Chrome viewer
+      const blob = doc.output('blob');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Mr_Yuga_Unified_Vehicle_Report_APK8745.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
     function downloadReportCSV() {
@@ -1383,20 +1079,10 @@
         alert('No data available to export.');
         return;
       }
-
-      let csv = 'Mr Yuga\'s Vehicle Summary - Perodua Bezza AV (APK 8745)\n\n';
-      csv += '--- FUELING LOGS ---\n';
-      csv += 'Date,Odometer (KM),Total Fuel Value (RM),Actual Paid (RM),Subsidy Saved (RM),Fuel Bars Left,Average Range (KM)\n';
+      let csv = 'Date,Odometer (KM),Total Fuel Value (RM),Actual Paid (RM),Subsidy Saved (RM),Fuel Bars\n';
       fuelEntries.forEach(e => {
-        csv += `"${e.date}",${e.odometer},${e.fuelValue.toFixed(2)},${e.paidAmount.toFixed(2)},${e.subsidySaved.toFixed(2)},${e.bars},${e.range || ''}\n`;
+        csv += `"${e.date}",${e.odometer},${e.fuelValue.toFixed(2)},${e.paidAmount.toFixed(2)},${e.subsidySaved.toFixed(2)},${e.bars}\n`;
       });
-
-      csv += '\n--- SERVICE MAINTENANCE LOGS ---\n';
-      csv += 'Service Date,Odometer (KM),Amount Paid (RM),Showroom Location\n';
-      serviceEntries.forEach(s => {
-        csv += `"${s.date}",${s.odometer},${s.amount.toFixed(2)},"${s.location}"\n`;
-      });
-
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
