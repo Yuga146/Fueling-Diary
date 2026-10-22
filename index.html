@@ -241,7 +241,7 @@
         <i data-lucide="calendar-clock" class="w-4 h-4 text-amber-glow"></i>
         <span>Active Month Overview: <strong id="currentMonthLabel" class="text-amber-glow">October 2026</strong></span>
       </div>
-      <span id="syncStatusBadge" class="text-[10px] text-amber-glow bg-amber-glow/10 px-2 py-0.5 rounded border border-amber-glow/30 font-bold">Offline Local Mode</span>
+      <span id="syncStatusBadge" class="text-[10px] text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/30 font-bold">Cloud Sync Ready</span>
     </div>
 
     <!-- Dashboard KPI Cards (Fueling Mode View) -->
@@ -560,7 +560,7 @@
         <div class="flex gap-2">
           <button type="button" onclick="downloadReportPDFDirect()" class="flex-1 btn-glow py-2.5 rounded-xl text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow cursor-pointer">
             <i data-lucide="download" class="w-4 h-4"></i>
-            <span>Download Unified PDF</span>
+            <span>Download Unified PDF (Both Fuel & Service)</span>
           </button>
           
           <button type="button" onclick="downloadReportCSV()" class="px-4 py-2.5 rounded-xl bg-granite-800 hover:bg-granite-700 text-neon-cyan font-bold text-xs flex items-center justify-center border border-granite-700 cursor-pointer" title="Export CSV">
@@ -569,7 +569,7 @@
         </div>
       </div>
 
-      <!-- PREVIEW CONTAINER WITH CAR LOGO BADGE -->
+      <!-- PREVIEW CONTAINER WITH CAR LOGO BADGE & SUMMARY CHARTS -->
       <div class="bg-white text-slate-900 p-4 rounded-xl border border-slate-300 space-y-3 shadow-xl max-w-full overflow-hidden">
         <div class="flex items-center justify-between border-b-2 border-slate-900 pb-2">
           <div class="flex items-center gap-3">
@@ -585,6 +585,7 @@
           </div>
         </div>
 
+        <!-- FINANCIAL SUMMARY CARDS -->
         <div class="grid grid-cols-4 gap-1.5 text-center bg-slate-100 p-2.5 rounded-lg border border-slate-300">
           <div>
             <div class="text-[9px] text-slate-500 uppercase font-bold">Total Fuel Value</div>
@@ -604,6 +605,22 @@
           </div>
         </div>
 
+        <!-- VISUAL BREAKDOWN BAR CHART PREVIEW -->
+        <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1.5">
+          <div class="text-[10px] font-bold text-slate-700 uppercase">Expense & Subsidy Distribution Chart</div>
+          <div class="w-full bg-slate-200 h-4 rounded-full overflow-hidden flex shadow-inner" id="reportVisualChartBar">
+            <div id="chartBarPaid" style="width: 50%" class="bg-slate-800 h-full transition-all" title="Actual Fuel Paid"></div>
+            <div id="chartBarSavings" style="width: 30%" class="bg-emerald-500 h-full transition-all" title="Subsidy Saved"></div>
+            <div id="chartBarService" style="width: 20%" class="bg-purple-600 h-full transition-all" title="Service Paid"></div>
+          </div>
+          <div class="flex justify-between text-[9px] font-mono text-slate-600 font-semibold px-1">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-800 inline-block"></span> Fuel Paid</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Subsidy Saved</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-600 inline-block"></span> Service Costs</span>
+          </div>
+        </div>
+
+        <!-- 1. FUELING LOGS TABLE -->
         <div>
           <div class="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-1">1. Fueling Logs History</div>
           <div class="overflow-x-auto">
@@ -622,6 +639,25 @@
             </table>
           </div>
         </div>
+
+        <!-- 2. SERVICE LOGS TABLE -->
+        <div class="pt-2">
+          <div class="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-1">2. Service Maintenance History</div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-[10px] border-collapse">
+              <thead>
+                <tr class="border-b-2 border-slate-900 text-slate-700 font-mono uppercase">
+                  <th class="py-1 px-1">Date</th>
+                  <th class="py-1 px-1">Odometer</th>
+                  <th class="py-1 px-1">Amount Paid</th>
+                  <th class="py-1 px-1">Showroom Location</th>
+                </tr>
+              </thead>
+              <tbody id="reportServiceTableBody" class="divide-y divide-slate-200 font-mono text-slate-900"></tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -634,7 +670,7 @@
         <img id="popupCarPhoto" class="w-full h-full object-cover" src="" alt="Thank You DP">
       </div>
       <div>
-        <h3 class="text-lg font-extrabold text-white">Thank You for Fueling Me!</h3>
+        <h3 id="thankYouTitleText" class="text-lg font-extrabold text-white">Thank You for Fueling Me!</h3>
         <p class="text-xs text-amber-glow font-mono font-bold mt-1">Perodua Bezza AV • APK 8745</p>
       </div>
       <button type="button" onclick="closeThankYouModal()" class="btn-glow w-full py-3 rounded-xl text-black font-extrabold text-xs shadow-lg cursor-pointer">
@@ -652,13 +688,13 @@
         </h3>
         <button type="button" onclick="closeCloudModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
-      <p class="text-xs text-gray-300">Paste your Firebase Realtime Database URL below. Make sure your database rules allow read/write access.</p>
+      <p class="text-xs text-gray-300">Your default cloud database is pre-configured. You can also paste a custom Firebase Realtime Database URL if desired.</p>
       <div>
         <label class="block text-xs font-bold text-neon-cyan uppercase mb-1">Firebase Database URL</label>
         <input type="text" id="firebaseDbUrlInput" placeholder="https://your-app-default-rtdb.firebaseio.com" class="input-field w-full px-3.5 py-2.5 rounded-xl font-mono text-xs">
       </div>
       <div class="flex gap-2 pt-2">
-        <button type="button" onclick="saveFirebaseConfig()" class="btn-glow flex-1 py-2.5 rounded-xl text-black font-extrabold text-xs cursor-pointer">Connect & Sync</button>
+        <button type="button" onclick="saveFirebaseConfig()" class="btn-glow flex-1 py-2.5 rounded-xl text-black font-extrabold text-xs cursor-pointer">Save & Connect</button>
         <button type="button" onclick="closeCloudModal()" class="px-4 py-2.5 rounded-xl bg-granite-800 text-gray-300 font-bold text-xs cursor-pointer">Cancel</button>
       </div>
     </div>
@@ -716,7 +752,9 @@
     let dbRef = null;
     let selectedFuelBars = 0;
 
-    // Direct Google Drive image converter helper
+    // Default Pre-configured Public Firebase Database for Instant Multi-Device Sync
+    const DEFAULT_FB_URL = "https://mryuga-bezza-default-rtdb.asia-southeast1.firebasedatabase.app";
+
     function getDirectImageUrl(url) {
       if (!url) return DEFAULT_BEZZA_SVG;
       if (url.startsWith('data:image')) return url;
@@ -732,10 +770,9 @@
 
     loadLocalStorageData();
 
-    let savedDbUrl = localStorage.getItem('mrYuga_firebaseUrl') || '';
-    if (savedDbUrl) {
-      initFirebase(savedDbUrl);
-    }
+    // Initialize with pre-configured default cloud URL or custom user URL
+    let savedDbUrl = localStorage.getItem('mrYuga_firebaseUrl') || DEFAULT_FB_URL;
+    initFirebase(savedDbUrl);
 
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
@@ -775,10 +812,11 @@
             renderReport();
             updateVehiclePhotos();
           }
-          document.getElementById('syncStatusBadge').innerText = 'Firebase Live Sync Active';
+          document.getElementById('syncStatusBadge').innerText = 'Cloud Sync Connected';
           document.getElementById('syncStatusBadge').className = 'text-[10px] text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/30 font-bold';
         }, (error) => {
           console.error("Firebase sync error:", error);
+          document.getElementById('syncStatusBadge').innerText = 'Offline Local Mode';
         });
       } catch(e) {
         console.error("Firebase init failed:", e);
@@ -792,7 +830,7 @@
         localStorage.setItem('mrYuga_firebaseUrl', url);
         initFirebase(url);
         closeCloudModal();
-        alert('Connected to Firebase!');
+        alert('Connected to custom database URL successfully!');
       }
     }
 
@@ -808,7 +846,7 @@
           serviceEntries: serviceEntries,
           webPhoto: savedWebPhoto,
           thankYouPhoto: savedThankYouPhoto
-        }).catch(err => console.error(err));
+        }).catch(err => console.error("Cloud save failed:", err));
       }
     }
 
@@ -818,7 +856,7 @@
     }
 
     function openCloudModal() {
-      document.getElementById('firebaseDbUrlInput').value = localStorage.getItem('mrYuga_firebaseUrl') || '';
+      document.getElementById('firebaseDbUrlInput').value = localStorage.getItem('mrYuga_firebaseUrl') || DEFAULT_FB_URL;
       document.getElementById('cloudModal').classList.remove('hidden');
     }
     function closeCloudModal() { document.getElementById('cloudModal').classList.add('hidden'); }
@@ -1009,6 +1047,9 @@
 
       renderLogsTable();
       updateDashboardStats();
+
+      // Show Fueling Thank You Popup
+      document.getElementById('thankYouTitleText').innerText = 'Thank You for Fueling Me!';
       document.getElementById('thankYouModal').classList.remove('hidden');
     }
 
@@ -1029,7 +1070,10 @@
 
       renderServiceLogsTable();
       updateDashboardStats();
-      alert('Service record saved successfully!');
+
+      // Show Service Thank You Popup
+      document.getElementById('thankYouTitleText').innerText = 'Thank You Servicing me up!';
+      document.getElementById('thankYouModal').classList.remove('hidden');
     }
 
     function closeThankYouModal() { document.getElementById('thankYouModal').classList.add('hidden'); }
@@ -1119,7 +1163,9 @@
 
     function renderReport() {
       const reportBody = document.getElementById('reportTableBody');
+      const reportServiceBody = document.getElementById('reportServiceTableBody');
       reportBody.innerHTML = '';
+      reportServiceBody.innerHTML = '';
       document.getElementById('reportGenDate').innerText = getTodayFormattedDDMMYYYY();
       const scope = document.getElementById('reportScopeSelect').value;
 
@@ -1146,13 +1192,33 @@
 
       let totalService = 0;
       serviceEntries.forEach(s => {
-        if (scope === 'all' || isEntryInCurrentMonth(s.date)) totalService += (s.amount || 0);
+        if (scope === 'all' || isEntryInCurrentMonth(s.date)) {
+          totalService += (s.amount || 0);
+          const tr = document.createElement('tr');
+          tr.className = 'border-b border-slate-200';
+          tr.innerHTML = `
+            <td class="py-1 px-1 font-bold">${s.date}</td>
+            <td class="py-1 px-1">${s.odometer.toLocaleString()} km</td>
+            <td class="py-1 px-1 font-bold text-purple-700">RM ${s.amount.toFixed(2)}</td>
+            <td class="py-1 px-1">${s.location}</td>
+          `;
+          reportServiceBody.appendChild(tr);
+        }
       });
 
       document.getElementById('repFuelValue').innerText = `RM ${totalValue.toFixed(2)}`;
       document.getElementById('repActualPaid').innerText = `RM ${totalPaid.toFixed(2)}`;
       document.getElementById('repTotalSavings').innerText = `RM ${totalSaved.toFixed(2)}`;
       document.getElementById('repTotalServicePaid').innerText = `RM ${totalService.toFixed(2)}`;
+
+      const grandTotal = totalPaid + totalSaved + totalService || 1;
+      const pctPaid = (totalPaid / grandTotal) * 100;
+      const pctSavings = (totalSaved / grandTotal) * 100;
+      const pctService = (totalService / grandTotal) * 100;
+
+      document.getElementById('chartBarPaid').style.width = `${pctPaid}%`;
+      document.getElementById('chartBarSavings').style.width = `${pctSavings}%`;
+      document.getElementById('chartBarService').style.width = `${pctService}%`;
     }
 
     function downloadReportPDFDirect() {
@@ -1184,7 +1250,7 @@
         doc.setTextColor(255, 183, 3);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(15);
-        doc.text("MR YUGA'S VEHICLE SUMMARY", imgData ? 82 : 30, 32);
+        doc.text("MR YUGA'S UNIFIED VEHICLE SUMMARY", imgData ? 82 : 30, 32);
 
         doc.setFontSize(8);
         doc.setTextColor(203, 213, 225);
@@ -1213,6 +1279,8 @@
         doc.text(`RM ${totalService.toFixed(2)}`, 445, 111);
 
         let currentY = 145;
+
+        // FUEL LOGS SECTION
         doc.setFontSize(10);
         doc.setTextColor(15, 23, 42);
         doc.text("1. FUELING LOGS HISTORY", 30, currentY);
@@ -1233,7 +1301,7 @@
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(15, 23, 42);
 
-        filteredFuel.slice(0, 15).forEach(f => {
+        filteredFuel.slice(0, 10).forEach(f => {
           currentY += 14;
           doc.text(String(f.date), 35, currentY);
           doc.text(`${f.odometer.toLocaleString()} km`, 110, currentY);
@@ -1241,6 +1309,34 @@
           doc.text(`RM ${f.paidAmount.toFixed(2)}`, 300, currentY);
           doc.text(`RM ${f.subsidySaved.toFixed(2)}`, 400, currentY);
           doc.text(`${f.bars}/8`, 490, currentY);
+        });
+
+        // SERVICE LOGS SECTION
+        currentY += 25;
+        doc.setFontSize(10);
+        doc.setTextColor(15, 23, 42);
+        doc.text("2. SERVICE MAINTENANCE HISTORY", 30, currentY);
+        currentY += 12;
+
+        doc.setFillColor(226, 232, 240);
+        doc.rect(30, currentY, 535, 16, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(51, 65, 85);
+        doc.text("DATE", 35, currentY + 11);
+        doc.text("ODOMETER", 130, currentY + 11);
+        doc.text("AMOUNT PAID", 250, currentY + 11);
+        doc.text("SHOWROOM LOCATION", 380, currentY + 11);
+
+        currentY += 16;
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(15, 23, 42);
+
+        filteredService.slice(0, 10).forEach(s => {
+          currentY += 14;
+          doc.text(String(s.date), 35, currentY);
+          doc.text(`${s.odometer.toLocaleString()} km`, 130, currentY);
+          doc.text(`RM ${s.amount.toFixed(2)}`, 250, currentY);
+          doc.text(String(s.location), 380, currentY);
         });
 
         const blob = doc.output('blob');
@@ -1266,14 +1362,19 @@
         alert('No data available to export.');
         return;
       }
-      let csv = 'Date,Odometer (KM),Total Fuel Value (RM),Actual Paid (RM),Subsidy Saved (RM),Fuel Bars\n';
+      let csv = '--- FUELING LOGS ---\nDate,Odometer (KM),Total Fuel Value (RM),Actual Paid (RM),Subsidy Saved (RM),Fuel Bars\n';
       fuelEntries.forEach(e => {
         csv += `"${e.date}",${e.odometer},${e.fuelValue.toFixed(2)},${e.paidAmount.toFixed(2)},${e.subsidySaved.toFixed(2)},${e.bars}\n`;
       });
+      csv += '\n--- SERVICE LOGS ---\nDate,Odometer (KM),Amount Paid (RM),Showroom Location\n';
+      serviceEntries.forEach(s => {
+        csv += `"${s.date}",${s.odometer},${s.amount.toFixed(2)},"${s.location}"\n`;
+      });
+
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.setAttribute('download', `Mr_Yuga_Vehicle_Summary_APK8745.csv`);
+      link.setAttribute('download', `Mr_Yuga_Unified_Vehicle_Summary_APK8745.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
