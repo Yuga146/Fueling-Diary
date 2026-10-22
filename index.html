@@ -8,8 +8,12 @@
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Direct Native jsPDF Library -->
+  <!-- Native jsPDF Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Firebase App & Realtime Database SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
   <script>
@@ -190,6 +194,9 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <button type="button" onclick="openCloudModal()" class="p-2 rounded-xl bg-granite-800 border border-neon-cyan/50 text-neon-cyan text-xs font-bold flex items-center gap-1 cursor-pointer" title="Cloud Sync Settings">
+          <i data-lucide="cloud-sync" class="w-4 h-4"></i>
+        </button>
         <button type="button" onclick="openWelcomePortal()" class="p-2 rounded-xl bg-granite-800 border border-granite-600 text-amber-glow text-xs font-bold flex items-center gap-1 cursor-pointer" title="Switch Mode">
           <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
         </button>
@@ -234,7 +241,7 @@
         <i data-lucide="calendar-clock" class="w-4 h-4 text-amber-glow"></i>
         <span>Active Month Overview: <strong id="currentMonthLabel" class="text-amber-glow">October 2026</strong></span>
       </div>
-      <span class="text-[10px] text-neon-emerald bg-neon-emerald/10 px-2 py-0.5 rounded border border-neon-emerald/30 font-bold">Auto-Resetting</span>
+      <span id="syncStatusBadge" class="text-[10px] text-neon-cyan bg-neon-cyan/10 px-2 py-0.5 rounded border border-neon-cyan/30 font-bold">Cloud Synced</span>
     </div>
 
     <!-- Dashboard KPI Cards (Fueling Mode View) -->
@@ -636,6 +643,27 @@
     </div>
   </div>
 
+  <!-- CLOUD SYNC CONFIG MODAL -->
+  <div id="cloudModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-card rounded-3xl p-5 max-w-md w-full space-y-4 border border-neon-cyan/40 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-granite-700/80 pb-3">
+        <h3 class="font-bold text-sm text-white flex items-center gap-2">
+          <i data-lucide="cloud" class="w-4 h-4 text-neon-cyan"></i> Firebase Cloud Database Sync
+        </h3>
+        <button type="button" onclick="closeCloudModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <p class="text-xs text-gray-300">Enter your Firebase Realtime Database URL to sync entries across all your devices in real time.</p>
+      <div>
+        <label class="block text-xs font-bold text-neon-cyan uppercase mb-1">Firebase Database URL</label>
+        <input type="text" id="firebaseDbUrlInput" placeholder="https://your-app-default-rtdb.firebaseio.com" class="input-field w-full px-3.5 py-2.5 rounded-xl font-mono text-xs">
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button type="button" onclick="saveFirebaseConfig()" class="btn-glow flex-1 py-2.5 rounded-xl text-black font-extrabold text-xs cursor-pointer">Connect & Sync</button>
+        <button type="button" onclick="closeCloudModal()" class="px-4 py-2.5 rounded-xl bg-granite-800 text-gray-300 font-bold text-xs cursor-pointer">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- DUAL PHOTO MANAGEMENT MODAL -->
   <div id="imageModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
     <div class="glass-card rounded-3xl p-5 max-w-md w-full space-y-5 border border-granite-700 shadow-2xl">
@@ -649,7 +677,7 @@
       <div class="space-y-2 bg-granite-900/90 p-3 rounded-2xl border border-granite-700/80">
         <label class="text-xs font-bold text-white">Banner & PDF Report Car Image URL / File</label>
         <input type="url" id="webPhotoUrl" placeholder="Direct Image URL" class="input-field w-full px-3 py-2 rounded-xl font-mono text-xs">
-        <input type="file" accept="image/*" onchange="handleFileUpload(event, 'web')" class="block w-full text-[11px] text-gray-400">
+        <input type="file" accept="image/*" onchange="handleFileUpload(event)" class="block w-full text-[11px] text-gray-400">
       </div>
 
       <div class="flex gap-2 pt-1">
@@ -665,18 +693,19 @@
 
     let fuelEntries = [], serviceEntries = [];
     let currentAppMode = 'fuel';
+    let dbRef = null;
 
-    try { fuelEntries = JSON.parse(localStorage.getItem('mrYuga_fuelEntries') || '[]'); } catch(e) { fuelEntries = []; }
-    try { serviceEntries = JSON.parse(localStorage.getItem('mrYuga_serviceEntries') || '[]'); } catch(e) { serviceEntries = []; }
+    // Initialize Firebase if URL stored
+    let savedDbUrl = localStorage.getItem('mrYuga_firebaseUrl') || '';
+    if (savedDbUrl) {
+      initFirebase(savedDbUrl);
+    } else {
+      loadLocalStorageData();
+    }
 
     let selectedFuelBars = 0;
-    let savedWebPhoto = DEFAULT_BEZZA_SVG;
-    let savedThankYouPhoto = DEFAULT_BEZZA_SVG;
-
-    try {
-      savedWebPhoto = localStorage.getItem('mrYuga_webPhoto') || DEFAULT_BEZZA_SVG;
-      savedThankYouPhoto = localStorage.getItem('mrYuga_thankYouPhoto') || DEFAULT_BEZZA_SVG;
-    } catch(e) {}
+    let savedWebPhoto = localStorage.getItem('mrYuga_webPhoto') || DEFAULT_BEZZA_SVG;
+    let savedThankYouPhoto = localStorage.getItem('mrYuga_thankYouPhoto') || DEFAULT_BEZZA_SVG;
 
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
@@ -688,6 +717,67 @@
       updateDashboardStats();
       renderReport();
     });
+
+    function initFirebase(dbUrl) {
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp({ databaseURL: dbUrl });
+        }
+        dbRef = firebase.database().ref('mryuga_vehicle_data');
+        
+        dbRef.on('value', (snapshot) => {
+          const val = snapshot.val();
+          if (val) {
+            fuelEntries = val.fuelEntries || [];
+            serviceEntries = val.serviceEntries || [];
+            if (val.webPhoto) savedWebPhoto = val.webPhoto;
+            
+            renderLogsTable();
+            renderServiceLogsTable();
+            updateDashboardStats();
+            renderReport();
+            updateVehiclePhotos();
+          }
+          document.getElementById('syncStatusBadge').innerText = 'Firebase Live Sync';
+        });
+      } catch(e) {
+        loadLocalStorageData();
+      }
+    }
+
+    function saveFirebaseConfig() {
+      const url = document.getElementById('firebaseDbUrlInput').value.trim();
+      if (url) {
+        localStorage.setItem('mrYuga_firebaseUrl', url);
+        initFirebase(url);
+        closeCloudModal();
+        alert('Connected to Firebase successfully!');
+      }
+    }
+
+    function syncToCloud() {
+      if (dbRef) {
+        dbRef.set({
+          fuelEntries: fuelEntries,
+          serviceEntries: serviceEntries,
+          webPhoto: savedWebPhoto
+        });
+      } else {
+        localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries));
+        localStorage.setItem('mrYuga_serviceEntries', JSON.stringify(serviceEntries));
+      }
+    }
+
+    function loadLocalStorageData() {
+      try { fuelEntries = JSON.parse(localStorage.getItem('mrYuga_fuelEntries') || '[]'); } catch(e) { fuelEntries = []; }
+      try { serviceEntries = JSON.parse(localStorage.getItem('mrYuga_serviceEntries') || '[]'); } catch(e) { serviceEntries = []; }
+    }
+
+    function openCloudModal() {
+      document.getElementById('firebaseDbUrlInput').value = localStorage.getItem('mrYuga_firebaseUrl') || '';
+      document.getElementById('cloudModal').classList.remove('hidden');
+    }
+    function closeCloudModal() { document.getElementById('cloudModal').classList.add('hidden'); }
 
     function getTodayFormattedDDMMYYYY() {
       const today = new Date();
@@ -757,19 +847,21 @@
       const webUrl = document.getElementById('webPhotoUrl').value.trim();
       if (webUrl) {
         savedWebPhoto = webUrl;
-        try { localStorage.setItem('mrYuga_webPhoto', savedWebPhoto); } catch(e){}
+        localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
+        syncToCloud();
       }
       updateVehiclePhotos();
       closeImageModal();
     }
 
-    function handleFileUpload(event, type) {
+    function handleFileUpload(event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
           savedWebPhoto = e.target.result;
-          try { localStorage.setItem('mrYuga_webPhoto', savedWebPhoto); } catch(err){}
+          localStorage.setItem('mrYuga_webPhoto', savedWebPhoto);
+          syncToCloud();
           updateVehiclePhotos();
         };
         reader.readAsDataURL(file);
@@ -832,7 +924,7 @@
 
       const subsidySaved = Math.max(0, fuelValue - paidAmount);
       fuelEntries.unshift({ id: Date.now(), date, odometer, fuelValue, paidAmount, subsidySaved, bars: selectedFuelBars });
-      try { localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries)); } catch(e){}
+      syncToCloud();
 
       renderLogsTable();
       updateDashboardStats();
@@ -852,7 +944,7 @@
       }
 
       serviceEntries.unshift({ id: Date.now(), date, odometer, amount, location });
-      try { localStorage.setItem('mrYuga_serviceEntries', JSON.stringify(serviceEntries)); } catch(e){}
+      syncToCloud();
 
       renderServiceLogsTable();
       updateDashboardStats();
@@ -934,13 +1026,13 @@
 
     function deleteEntry(id) {
       fuelEntries = fuelEntries.filter(e => e.id !== id);
-      try { localStorage.setItem('mrYuga_fuelEntries', JSON.stringify(fuelEntries)); } catch(e){}
+      syncToCloud();
       renderLogsTable(); updateDashboardStats();
     }
 
     function deleteServiceEntry(id) {
       serviceEntries = serviceEntries.filter(e => e.id !== id);
-      try { localStorage.setItem('mrYuga_serviceEntries', JSON.stringify(serviceEntries)); } catch(e){}
+      syncToCloud();
       renderServiceLogsTable(); updateDashboardStats();
     }
 
@@ -982,7 +1074,6 @@
       document.getElementById('repTotalServicePaid').innerText = `RM ${totalService.toFixed(2)}`;
     }
 
-    // HELPER: CONVERT IMAGE TO BASE64 FOR PDF EMBEDDING
     function getBase64Image(imgUrl, callback) {
       const img = new Image();
       img.crossOrigin = 'Anonymous';
@@ -998,7 +1089,6 @@
       img.src = imgUrl;
     }
 
-    // DIRECT BLOB DOWNLOAD WITH EMBEDDED CAR IMAGE LOGO
     function downloadReportPDFDirect() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -1021,11 +1111,8 @@
         doc.setFillColor(15, 23, 42);
         doc.rect(0, 0, 595, 65, 'F');
 
-        // Embed Car Logo Badge if available
         if (imgData) {
-          try {
-            doc.addImage(imgData, 'JPEG', 30, 12, 42, 42);
-          } catch(e) {}
+          try { doc.addImage(imgData, 'JPEG', 30, 12, 42, 42); } catch(e) {}
         }
 
         doc.setTextColor(255, 183, 3);
@@ -1085,12 +1172,11 @@
           doc.text(String(f.date), 35, currentY);
           doc.text(`${f.odometer.toLocaleString()} km`, 110, currentY);
           doc.text(`RM ${f.fuelValue.toFixed(2)}`, 210, currentY);
-          doc.text(`RM ${f.paidAmount.toFixed(2)}`, 310, currentY);
+          doc.text(`RM ${f.paidAmount.toFixed(2)}`, 300, currentY);
           doc.text(`RM ${f.subsidySaved.toFixed(2)}`, 400, currentY);
           doc.text(`${f.bars}/8`, 490, currentY);
         });
 
-        // Trigger direct file download
         const blob = doc.output('blob');
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
